@@ -12,8 +12,8 @@ import type { ViewMode, VectorLayer, VectorStats } from '../types/vectorizer';
 import type { Point } from '../utils/vectorizer';
 import { ZoomPanViewport, type PanOffset } from './ZoomPanViewport';
 import { ZoomSlider, ZOOM_MIN, ZOOM_MAX } from './ZoomSlider';
-import { ControlHint } from './ControlHint';
 import { drawBinaryPreview, type BinaryPreview } from '../utils/previewUtils';
+import { useI18n } from '../i18n/context';
 
 const SIDE_BY_SIDE_MAX = 350;
 
@@ -187,7 +187,8 @@ export function Preview({
     stats,
     binaryPreview,
 }: PreviewProps) {
-    const vectorLabel = colorMode === 'multi' ? 'BẢN VECTOR SVG ĐA MÀU' : 'BẢN VECTOR HÓA SVG MỘT MÀU';
+    const { t } = useI18n();
+    const vectorLabel = colorMode === 'multi' ? t('preview.vectorMulti') : t('preview.vectorBw');
     const previewSurfaceRef = useRef<HTMLDivElement>(null);
     const [linkedPan, setLinkedPan] = useState<PanOffset>({ x: 0, y: 0 });
 
@@ -229,9 +230,9 @@ export function Preview({
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
                 <div className="flex gap-1.5 p-1 bg-slate-100 rounded-lg border border-slate-200">
                     {[
-                        { id: 'sideBySide' as const, label: 'So Sánh (Side-by-Side)', icon: Layers },
-                        { id: 'vectorOnly' as const, label: 'Vector SVG Kết Quả', icon: Eye },
-                        { id: 'thresholdOnly' as const, label: 'Lưới Nhị Phân (B&W)', icon: SlidersHorizontal },
+                        { id: 'sideBySide' as const, label: t('preview.tabSideBySide'), icon: Layers },
+                        { id: 'vectorOnly' as const, label: t('preview.tabVector'), icon: Eye },
+                        { id: 'thresholdOnly' as const, label: t('preview.tabBinary'), icon: SlidersHorizontal },
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -257,7 +258,7 @@ export function Preview({
                                 onChange={(e) => onShowCheckerboardChange(e.target.checked)}
                                 className="w-3.5 h-3.5 rounded text-black bg-white border-slate-300"
                             />
-                            Caro nền trong suốt
+                            {t('preview.checkerboard')}
                         </label>
                     )}
 
@@ -269,7 +270,7 @@ export function Preview({
                                 onChange={(e) => onShowAnchorsChange(e.target.checked)}
                                 className="w-3.5 h-3.5 rounded text-black bg-white border-slate-300"
                             />
-                            Hiển thị điểm Neo (Anchors)
+                            {t('preview.showAnchors')}
                         </label>
                     )}
                 </div>
@@ -280,14 +281,14 @@ export function Preview({
                     <div className="absolute top-4 right-4 z-40 bg-white/90 backdrop-blur border border-neutral-200 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
                         <RefreshCw className="w-3.5 h-3.5 text-black animate-spin" />
                         <span className="text-[11px] font-bold text-black">
-                            {usingWorker ? 'Worker đang trích xuất nét...' : 'Đang trích xuất nét...'}
+                            {usingWorker ? t('preview.tracingWorker') : t('preview.tracing')}
                         </span>
                     </div>
                 )}
 
                 <ZoomSlider zoom={zoom} onZoomChange={onZoomChange} onZoomReset={handleZoomReset} />
 
-                <div ref={previewSurfaceRef} className="w-full h-full relative overflow-hidden p-6 pr-14">
+                <div ref={previewSurfaceRef} className="w-full h-full relative overflow-hidden p-4 pb-20 md:p-6 md:pb-6 md:pr-14">
                     <AnimatePresence mode="wait">
                         {viewMode === 'sideBySide' && (
                             <motion.div
@@ -300,7 +301,7 @@ export function Preview({
                             >
                                 <div className="flex flex-col h-full rounded-xl border border-slate-200 bg-slate-50/50 overflow-hidden relative">
                                     <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-500 flex items-center justify-between">
-                                        <span>ẢNH GỐC / PHÁC THẢO BAN ĐẦU</span>
+                                        <span>{t('preview.originalLabel')}</span>
                                         <span className="text-[10px] bg-white border border-slate-200 text-slate-500 font-mono px-1.5 py-0.5 rounded shadow-sm">
                                             {imageWidth}x{imageHeight}px
                                         </span>
@@ -324,7 +325,7 @@ export function Preview({
                                         ) : (
                                             <div className="text-center text-slate-400">
                                                 <FileImage className="w-12 h-12 mx-auto stroke-[1] mb-2 text-slate-300" />
-                                                <p className="text-xs">Chưa tải ảnh lên</p>
+                                                <p className="text-xs">{t('preview.noImage')}</p>
                                             </div>
                                         )}
                                     </div>
@@ -335,7 +336,7 @@ export function Preview({
                                         <span>{vectorLabel}</span>
                                         {usingWorker && (
                                             <span className="text-[10px] bg-neutral-100 text-black font-mono px-1.5 py-0.5 rounded border border-neutral-200 font-bold uppercase">
-                                                Worker
+                                                {t('preview.worker')}
                                             </span>
                                         )}
                                     </div>
@@ -372,7 +373,7 @@ export function Preview({
                                         ) : (
                                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-slate-400">
                                                 <Cpu className="w-12 h-12 mx-auto stroke-[1] mb-2 text-slate-300 animate-spin" />
-                                                <p className="text-xs">Đang nạp thuật toán...</p>
+                                                <p className="text-xs">{t('preview.loading')}</p>
                                             </div>
                                         )}
                                     </div>
@@ -390,7 +391,7 @@ export function Preview({
                                 className="w-full h-full flex flex-col rounded-xl border border-slate-200 bg-slate-50/50 overflow-hidden"
                             >
                                 <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-500">
-                                    CHẾ ĐỘ XEM TRỌN VẸN VECTOR
+                                    {t('preview.vectorFullView')}
                                 </div>
                                 <div className="flex-1 min-h-[400px] relative bg-slate-50/10">
                                     {showCheckerboard && useTransparentBg && (
@@ -433,7 +434,7 @@ export function Preview({
                                 className="w-full h-full flex flex-col rounded-xl border border-slate-200 bg-slate-50/50 overflow-hidden"
                             >
                                 <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-500">
-                                    ẢNH NHỊ PHÂN THỰC TẾ (1-BIT BINARY)
+                                    {t('preview.binaryLabel')}
                                 </div>
                                 <div className="flex-1 min-h-[400px] bg-slate-50/10 relative">
                                     {binaryPreview ? (
@@ -446,7 +447,7 @@ export function Preview({
                                     ) : (
                                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-slate-400">
                                             <Cpu className="w-12 h-12 mx-auto stroke-[1] mb-2 text-slate-300 animate-spin" />
-                                            <p className="text-xs">Đang nạp thuật toán...</p>
+                                            <p className="text-xs">{t('preview.loading')}</p>
                                         </div>
                                     )}
                                 </div>
@@ -460,7 +461,7 @@ export function Preview({
                                 animate={{ opacity: 1 }}
                                 className="text-center text-slate-500 text-sm p-8"
                             >
-                                Chế độ nhị phân chỉ khả dụng ở chế độ Đen Trắng.
+                                {t('preview.binaryMultiOnly')}
                             </motion.div>
                         )}
                     </AnimatePresence>

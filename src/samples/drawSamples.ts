@@ -1,7 +1,5 @@
 export interface SampleOption {
     id: number;
-    label: string;
-    desc: string;
     draw: (ctx: CanvasRenderingContext2D, width: number, height: number) => void;
 }
 
@@ -202,9 +200,9 @@ function drawSample3(ctx: CanvasRenderingContext2D, width: number, height: numbe
 }
 
 export const sampleOptions: SampleOption[] = [
-    { id: 1, label: 'Đóa Hoa Mandala', desc: 'Họa tiết đối xứng phức tạp', draw: drawSample1 },
-    { id: 2, label: 'Chú Mèo Vẽ Tay', desc: 'Nét mảnh phác thảo ngộ nghĩnh', draw: drawSample2 },
-    { id: 3, label: 'Xoắn Ốc Hình Học', desc: 'Vòng xoáy mảnh đối xứng', draw: drawSample3 },
+    { id: 1, draw: drawSample1 },
+    { id: 2, draw: drawSample2 },
+    { id: 3, draw: drawSample3 },
 ];
 
 export function renderSampleToDataUrl(sampleId: number, size = 600): string | null {

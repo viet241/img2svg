@@ -1,4 +1,5 @@
 import type { VectorStats } from '../types/vectorizer';
+import { useI18n } from '../i18n/context';
 
 interface StatsBarProps {
     stats: VectorStats | null;
@@ -19,25 +20,29 @@ function StatItem({ label, value, accent }: { label: string; value: string; acce
 }
 
 export function StatsBar({ stats, imageWidth, imageHeight, colorMode }: StatsBarProps) {
+    const { t } = useI18n();
     const resolution = imageWidth && imageHeight ? `${imageWidth}×${imageHeight}` : '—';
 
     return (
         <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-sm">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-                <StatItem label="Độ phân giải" value={resolution} />
+                <StatItem label={t('stats.resolution')} value={resolution} />
                 <span className="text-slate-200 hidden sm:inline">|</span>
-                <StatItem label="Phân đoạn viền" value={stats ? stats.rawSegmentsCount.toLocaleString() : '—'} />
+                <StatItem label={t('stats.segments')} value={stats ? stats.rawSegmentsCount.toLocaleString() : '—'} />
                 <span className="text-slate-200 hidden sm:inline">|</span>
-                <StatItem label="Đường nét khép kín" value={stats ? stats.finalPathsCount.toLocaleString() : '—'} accent />
+                <StatItem label={t('stats.paths')} value={stats ? stats.finalPathsCount.toLocaleString() : '—'} accent />
                 <span className="text-slate-200 hidden sm:inline">|</span>
-                <StatItem label="Tổng số điểm neo" value={stats ? stats.totalPointsCount.toLocaleString() : '—'} />
+                <StatItem label={t('stats.points')} value={stats ? stats.totalPointsCount.toLocaleString() : '—'} />
                 <span className="text-slate-200 hidden sm:inline">|</span>
-                <StatItem label="Đã khử nhiễu rác" value={stats ? `${stats.filteredCount} vệt` : '—'} />
+                <StatItem
+                    label={t('stats.filtered')}
+                    value={stats ? t('stats.filteredValue', { count: stats.filteredCount }) : '—'}
+                />
                 {colorMode === 'multi' && (
                     <>
                         <span className="text-slate-200 hidden sm:inline">|</span>
                         <StatItem
-                            label="Layers / Palette"
+                            label={t('stats.layers')}
                             value={stats ? `${stats.layerCount ?? '—'}/${stats.paletteCount ?? '—'}` : '—'}
                         />
                     </>

@@ -2,28 +2,10 @@ import { useState, useCallback } from 'react';
 import type { ColorMode } from '../types/vectorizer';
 import type { PaletteColor } from '../utils/quantize';
 
-export const PRESETS = [
-    {
-        id: 'logo',
-        label: 'Logo',
-        description: 'Tô đặc, nét sắc — icon, logo, hình khối rõ ràng',
-    },
-    {
-        id: 'sketch',
-        label: 'Phác thảo',
-        description: 'Nét mảnh, chỉ viền — bút chì, sketch vẽ tay',
-    },
-    {
-        id: 'technical',
-        label: 'Bản vẽ',
-        description: 'Góc cạnh, ít làm mượt — sơ đồ, wireframe kỹ thuật',
-    },
-    {
-        id: 'artistic',
-        label: 'Minh họa',
-        description: 'Nét dày, làm mượt mạnh — poster, tranh nghệ thuật',
-    },
-] as const;
+export const PRESET_IDS = ['logo', 'sketch', 'technical', 'artistic'] as const;
+export type PresetId = (typeof PRESET_IDS)[number];
+
+export const PRESETS = PRESET_IDS.map((id) => ({ id }));
 
 export function useVectorSettings() {
     const [brightness, setBrightness] = useState(0);

@@ -1,5 +1,7 @@
 import { Cpu, Palette, Scissors, Compass, Sparkles } from 'lucide-react';
-import { PRESETS } from '../hooks/useVectorSettings';
+import { PRESET_IDS } from '../hooks/useVectorSettings';
+import { useI18n } from '../i18n/context';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 const PRESET_ICONS = {
     logo: Palette,
@@ -14,50 +16,60 @@ interface HeaderProps {
 }
 
 export function Header({ activePreset, onPresetChange }: HeaderProps) {
+    const { t } = useI18n();
+
     return (
-        <header className="border-b border-slate-200 bg-white/80 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-0 z-50">
-            <div className="flex items-center gap-3">
-                <div className="bg-black p-2.5 rounded-xl shadow-sm">
-                    <Cpu className="w-6 h-6 text-white animate-pulse" />
-                </div>
-                <div>
-                    <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-bold tracking-tight text-slate-950">
-                            img2svg
-                        </h1>
-                        <span className="text-[10px] bg-neutral-100 text-black font-mono px-1.5 py-0.5 rounded border border-neutral-200 font-bold uppercase tracking-wider">
-                            v1.0
-                        </span>
+        <header className="border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 sticky top-0 z-50">
+            <div className="flex items-start justify-between gap-3 min-w-0 md:items-center md:justify-start md:shrink-0">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="bg-black p-2 sm:p-2.5 rounded-xl shadow-sm shrink-0">
+                        <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-pulse" />
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                        Chuyển đổi ảnh thành SVG vector
-                    </p>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-950">
+                                img2svg
+                            </h1>
+                            <span className="text-[10px] bg-neutral-100 text-black font-mono px-1.5 py-0.5 rounded border border-neutral-200 font-bold uppercase tracking-wider">
+                                v1.0
+                            </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5 truncate sm:whitespace-normal">
+                            {t('header.tagline')}
+                        </p>
+                    </div>
                 </div>
+
+                <LanguageSwitcher className="md:hidden" />
             </div>
 
-            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
-                <span className="text-xs font-medium text-slate-500 px-2.5">Preset:</span>
-                <div className="flex gap-0.5">
-                    {PRESETS.map((preset) => {
-                        const Icon = PRESET_ICONS[preset.id];
-                        return (
-                            <button
-                                key={preset.id}
-                                type="button"
-                                onClick={() => onPresetChange(preset.id)}
-                                title={preset.description}
-                                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                                    activePreset === preset.id
-                                        ? 'bg-black text-white shadow-sm'
-                                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
-                                }`}
-                            >
-                                <Icon className="w-3.5 h-3.5" />
-                                {preset.label}
-                            </button>
-                        );
-                    })}
+            <div className="flex items-center gap-2 md:shrink-0 min-w-0">
+                <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 w-full md:w-auto overflow-x-auto min-w-0">
+                    <span className="text-xs font-medium text-slate-500 px-2 sm:px-2.5 shrink-0">{t('header.preset')}:</span>
+                    <div className="flex gap-0.5 min-w-0">
+                        {PRESET_IDS.map((presetId) => {
+                            const Icon = PRESET_ICONS[presetId];
+                            return (
+                                <button
+                                    key={presetId}
+                                    type="button"
+                                    onClick={() => onPresetChange(presetId)}
+                                    title={t(`preset.${presetId}.description`)}
+                                    className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap shrink-0 ${
+                                        activePreset === presetId
+                                            ? 'bg-black text-white shadow-sm'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                                    }`}
+                                >
+                                    <Icon className="w-3.5 h-3.5" />
+                                    {t(`preset.${presetId}.label`)}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
+
+                <LanguageSwitcher className="hidden md:flex shrink-0" />
             </div>
         </header>
     );
