@@ -3,6 +3,8 @@ import {
     buildPathString,
     isClosedLoop,
     isGiantSimplex,
+    isImageFrameLoop,
+    isDangerousOpenFill,
     type Point,
 } from './vectorizer';
 
@@ -46,12 +48,17 @@ export function processLoops(
         const closed = isClosedLoop(simplified);
 
         if (options.isFillMode) {
-            if (!closed) {
+            if (isDangerousOpenFill(simplified, options.imageWidth, options.imageHeight)) {
                 filteredCount++;
                 continue;
             }
 
-            if (isGiantSimplex(simplified, options.imageWidth, options.imageHeight)) {
+            if (closed && isGiantSimplex(simplified, options.imageWidth, options.imageHeight)) {
+                filteredCount++;
+                continue;
+            }
+
+            if (closed && isImageFrameLoop(simplified, options.imageWidth, options.imageHeight)) {
                 filteredCount++;
                 continue;
             }

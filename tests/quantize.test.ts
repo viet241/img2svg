@@ -31,10 +31,25 @@ describe('quantizeImage', () => {
     });
 });
 
+function twoColorBlobImageData(w: number, h: number): ImageData {
+    const data = new Uint8ClampedArray(w * h * 4);
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            const i = (y * w + x) * 4;
+            const inBlob = x >= w / 4 && x < (3 * w) / 4 && y >= h / 4 && y < (3 * h) / 4;
+            data[i] = inBlob ? 220 : 255;
+            data[i + 1] = inBlob ? 20 : 255;
+            data[i + 2] = inBlob ? 20 : 255;
+            data[i + 3] = 255;
+        }
+    }
+    return new ImageData(data, w, h);
+}
+
 describe('traceColorLayers', () => {
     it('produces layers for 2-color quantized image', () => {
-        const quantize = quantizeImage(twoColorImageData(12, 12), 2);
-        const layers = traceColorLayers(quantize, 12, 12, {
+        const quantize = quantizeImage(twoColorBlobImageData(24, 24), 2);
+        const layers = traceColorLayers(quantize, 24, 24, {
             rdpEpsilon: 0.5,
             useBezier: false,
             noiseFilter: 2,
@@ -43,5 +58,16 @@ describe('traceColorLayers', () => {
         expect(layers.length).toBeGreaterThan(0);
         expect(layers[0].paths.length).toBeGreaterThan(0);
         expect(layers[0].color).toMatch(/^#[0-9a-f]{6}$/i);
+    });
+
+    it('produces layers in stroke mode when fill rejects open contours', () => {
+        const quantize = quantizeImage(twoColorImageData(12, 12), 2);
+        const layers = traceColorLayers(quantize, 12, 12, {
+            rdpEpsilon: 0.5,
+            useBezier: false,
+            noiseFilter: 2,
+            isFillMode: false,
+        });
+        expect(layers.length).toBeGreaterThan(0);
     });
 });

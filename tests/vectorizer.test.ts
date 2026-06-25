@@ -5,6 +5,7 @@ import {
     linkSegments,
     rdpSimplify,
     buildPathString,
+    isClosedLoop,
     type Point,
     type Segment,
 } from '../src/utils/vectorizer';
@@ -91,6 +92,7 @@ describe('linkSegments', () => {
         const loops = linkSegments(segments);
         expect(loops).toHaveLength(1);
         expect(loops[0].length).toBeGreaterThanOrEqual(4);
+        expect(isClosedLoop(loops[0])).toBe(true);
     });
 });
 

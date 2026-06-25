@@ -82,15 +82,13 @@ function VectorSvgContent({
             {colorMode === 'multi' ? (
                 vectorLayers.flatMap((layer, lIdx) =>
                     isFillMode ? (
-                        layer.paths.map((dStr, pIdx) => (
-                            <path
-                                key={`fill-${lIdx}-${pIdx}`}
-                                d={dStr}
-                                fill={layer.color}
-                                fillRule="evenodd"
-                                stroke="none"
-                            />
-                        ))
+                        <path
+                            key={`fill-${lIdx}`}
+                            d={layer.paths.join(' ')}
+                            fill={layer.color}
+                            fillRule="evenodd"
+                            stroke="none"
+                        />
                     ) : (
                         layer.paths.map((dStr, pIdx) => (
                             <path
@@ -106,15 +104,12 @@ function VectorSvgContent({
                     )
                 )
             ) : isFillMode ? (
-                reactPaths.map((dStr, idx) => (
-                    <path
-                        key={idx}
-                        d={dStr}
-                        fill={vectorColor}
-                        fillRule="evenodd"
-                        stroke="none"
-                    />
-                ))
+                <path
+                    d={reactPaths.join(' ')}
+                    fill={vectorColor}
+                    fillRule="evenodd"
+                    stroke="none"
+                />
             ) : (
                 reactPaths.map((dStr, idx) => (
                     <path

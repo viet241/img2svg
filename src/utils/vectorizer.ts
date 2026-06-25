@@ -166,7 +166,6 @@ export function traceContours(
 
 /**
  * Ghép nối các đoạn thẳng phân tán thành các đường bao (loops) khép kín hoặc liên tục.
- * Đi bộ hai chiều từ mỗi segment để thu được loop đầy đủ hơn.
  */
 export function linkSegments(segments: Segment[]): Point[][] {
   const loops: Point[][] = [];
@@ -189,9 +188,18 @@ export function linkSegments(segments: Segment[]): Point[][] {
 
   const visited = new Set<number>();
 
-  const walkFrom = (startPoint: Point, prepend: boolean): Point[] => {
-    const chain: Point[] = [];
-    let currentPoint = startPoint;
+  for (let i = 0; i < segments.length; i++) {
+    if (visited.has(i)) continue;
+
+    const currentLoop: Point[] = [];
+    let segIdx = i;
+    visited.add(segIdx);
+
+    let [pStart, pEnd] = segments[segIdx];
+    currentLoop.push(pStart);
+    currentLoop.push(pEnd);
+
+    let currentPoint = pEnd;
     let keepGoing = true;
 
     while (keepGoing) {
@@ -203,15 +211,14 @@ export function linkSegments(segments: Segment[]): Point[][] {
         if (!visited.has(nextIdx)) {
           visited.add(nextIdx);
           const [n1, n2] = segments[nextIdx];
-          const nextPoint = getHash(n1) === hash ? n2 : n1;
+          const h1 = getHash(n1);
 
-          if (prepend) {
-            chain.unshift(nextPoint);
+          if (h1 === hash) {
+            currentPoint = n2;
           } else {
-            chain.push(nextPoint);
+            currentPoint = n1;
           }
-
-          currentPoint = nextPoint;
+          currentLoop.push(currentPoint);
           foundNext = true;
           break;
         }
@@ -221,19 +228,6 @@ export function linkSegments(segments: Segment[]): Point[][] {
         keepGoing = false;
       }
     }
-
-    return chain;
-  };
-
-  for (let i = 0; i < segments.length; i++) {
-    if (visited.has(i)) continue;
-
-    visited.add(i);
-    const [pStart, pEnd] = segments[i];
-
-    const backward = walkFrom(pStart, true);
-    const forward = walkFrom(pEnd, false);
-    const currentLoop = [...backward, pStart, pEnd, ...forward];
 
     if (currentLoop.length >= 2) {
       loops.push(currentLoop);
@@ -282,6 +276,57 @@ export function isGiantSimplex(loop: Point[], imageWidth: number, imageHeight: n
   if (imageArea <= 0) return false;
 
   return loopArea(loop) > imageArea * GIANT_SIMPLEX_AREA_RATIO;
+}
+
+/**
+ * Open loops are kept for evenodd compound fill, but not when implicit close
+ * would create a huge or full-canvas fill artifact.
+ */
+export function isDangerousOpenFill(loop: Point[], imageWidth: number, imageHeight: number): boolean {
+  if (isClosedLoop(loop) || loop.length < 2) return false;
+
+  const imageArea = imageWidth * imageHeight;
+  if (imageArea <= 0) return true;
+
+  const implicitArea = loopArea(loop);
+  if (implicitArea > imageArea * GIANT_SIMPLEX_AREA_RATIO) {
+    return true;
+  }
+
+  if (loop.length >= 4) {
+    return isImageFrameLoop([...loop, loop[0]], imageWidth, imageHeight);
+  }
+
+  return false;
+}
+
+const FRAME_EDGE_TOLERANCE = 1.5;
+
+/**
+ * Detects a contour that hugs the image border and would fill most of the canvas.
+ * Common tracing artifact, not a real shape.
+ */
+export function isImageFrameLoop(loop: Point[], imageWidth: number, imageHeight: number): boolean {
+  if (loop.length < 4 || imageWidth <= 0 || imageHeight <= 0) return false;
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const p of loop) {
+    minX = Math.min(minX, p.x);
+    minY = Math.min(minY, p.y);
+    maxX = Math.max(maxX, p.x);
+    maxY = Math.max(maxY, p.y);
+  }
+
+  const spansWidth = minX <= FRAME_EDGE_TOLERANCE && maxX >= imageWidth - FRAME_EDGE_TOLERANCE;
+  const spansHeight = minY <= FRAME_EDGE_TOLERANCE && maxY >= imageHeight - FRAME_EDGE_TOLERANCE;
+  if (!spansWidth || !spansHeight) return false;
+
+  const imageArea = imageWidth * imageHeight;
+  return loopArea(loop) > imageArea * 0.5;
 }
 
 /**
