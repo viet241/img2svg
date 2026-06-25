@@ -13,7 +13,7 @@ pnpm install
 pnpm dev
 ```
 
-Mở http://localhost:3000
+Mở http://localhost:7771
 
 ## Scripts
 
