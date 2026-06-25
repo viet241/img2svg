@@ -66,7 +66,8 @@ export function Sidebar({
     } = settings;
 
     return (
-        <div className="lg:col-span-4 border-r border-slate-200 bg-white p-5 space-y-6 overflow-y-auto max-h-[calc(100vh-77px)] custom-scrollbar">
+        <div className="lg:col-span-4 border-r border-slate-200 bg-white flex flex-col max-h-[calc(100vh-77px)]">
+            <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
             <div className="space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                     <Upload className="w-4 h-4 text-neutral-700" />
@@ -457,7 +458,9 @@ export function Sidebar({
                 </div>
             )}
 
-            <div className="space-y-3 pt-2">
+            </div>
+
+            <div className="shrink-0 sticky bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur-sm p-5 pt-4 space-y-3 shadow-[0_-8px_24px_-12px_rgba(15,23,42,0.2)]">
                 <div className="flex gap-2">
                     <button
                         onClick={onDownloadSvg}

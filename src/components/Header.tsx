@@ -23,14 +23,14 @@ export function Header({ activePreset, onPresetChange }: HeaderProps) {
                 <div>
                     <div className="flex items-center gap-2">
                         <h1 className="text-xl font-bold tracking-tight text-slate-950">
-                            Vectra B&W SVG
+                            img2svg
                         </h1>
                         <span className="text-[10px] bg-neutral-100 text-black font-mono px-1.5 py-0.5 rounded border border-neutral-200 font-bold uppercase tracking-wider">
-                            Tracing Engine v3.0
+                            v1.0
                         </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">
-                        Chuyển đổi phác thảo thành Vector SVG — đen trắng hoặc đa màu
+                        Chuyển đổi ảnh thành SVG vector
                     </p>
                 </div>
             </div>

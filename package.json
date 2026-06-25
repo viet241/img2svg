@@ -7,11 +7,16 @@
   "scripts": {
     "dev": "vite --port=7771 --host=0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview",
+    "start": "vite preview --host=0.0.0.0 --port=7771",
+    "preview": "vite preview --port=7771 --host=0.0.0.0",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "service:install": "bash ./scripts/install-macos-service.sh",
+    "service:restart": "bash ./scripts/restart-macos-service.sh",
+    "service:uninstall": "bash ./scripts/uninstall-macos-service.sh",
+    "deploy": "bash ./scripts/deploy.sh"
   },
   "dependencies": {
     "lucide-react": "^0.546.0",

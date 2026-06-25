@@ -141,6 +141,7 @@ export default function App() {
                         isProcessing={pipeline.isProcessing}
                         usingWorker={pipeline.usingWorker}
                         stats={pipeline.stats}
+                        binaryPreview={pipeline.binaryPreview}
                     />
 
                     <div className="px-4 pb-4 space-y-4">

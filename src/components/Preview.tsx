@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     FileImage,
@@ -13,6 +13,7 @@ import type { Point } from '../utils/vectorizer';
 import { ZoomPanViewport, type PanOffset } from './ZoomPanViewport';
 import { ZoomSlider, ZOOM_MIN, ZOOM_MAX } from './ZoomSlider';
 import { ControlHint } from './ControlHint';
+import { drawBinaryPreview, type BinaryPreview } from '../utils/previewUtils';
 
 const SIDE_BY_SIDE_MAX = 350;
 
@@ -25,6 +26,24 @@ function getSideBySideDisplaySize(width: number, height: number) {
         width: Math.round(width * scale),
         height: Math.round(height * scale),
     };
+}
+
+function BinaryThresholdCanvas({
+    preview,
+    className,
+}: {
+    preview: BinaryPreview;
+    className?: string;
+}) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useLayoutEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        drawBinaryPreview(canvas, preview);
+    }, [preview]);
+
+    return <canvas ref={canvasRef} className={className} />;
 }
 
 interface PreviewProps {
@@ -52,6 +71,7 @@ interface PreviewProps {
     isProcessing: boolean;
     usingWorker: boolean;
     stats: VectorStats | null;
+    binaryPreview: BinaryPreview | null;
 }
 
 function VectorSvgContent({
@@ -165,6 +185,7 @@ export function Preview({
     isProcessing,
     usingWorker,
     stats,
+    binaryPreview,
 }: PreviewProps) {
     const vectorLabel = colorMode === 'multi' ? 'BẢN VECTOR SVG ĐA MÀU' : 'BẢN VECTOR HÓA SVG MỘT MÀU';
     const previewSurfaceRef = useRef<HTMLDivElement>(null);
@@ -349,7 +370,7 @@ export function Preview({
                                                 />
                                             </ZoomPanViewport>
                                         ) : (
-                                            <div className="text-center text-slate-400">
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-slate-400">
                                                 <Cpu className="w-12 h-12 mx-auto stroke-[1] mb-2 text-slate-300 animate-spin" />
                                                 <p className="text-xs">Đang nạp thuật toán...</p>
                                             </div>
@@ -415,12 +436,19 @@ export function Preview({
                                     ẢNH NHỊ PHÂN THỰC TẾ (1-BIT BINARY)
                                 </div>
                                 <div className="flex-1 min-h-[400px] bg-slate-50/10 relative">
-                                    <ZoomPanViewport zoom={zoom} className="absolute inset-0 p-8">
-                                        <canvas
-                                            id="grayscale-preview-canvas"
-                                            className="max-w-full max-h-full object-contain rounded shadow-sm border border-slate-200"
-                                        />
-                                    </ZoomPanViewport>
+                                    {binaryPreview ? (
+                                        <ZoomPanViewport zoom={zoom} className="absolute inset-0 p-8">
+                                            <BinaryThresholdCanvas
+                                                preview={binaryPreview}
+                                                className="max-w-full max-h-full object-contain rounded shadow-sm border border-slate-200"
+                                            />
+                                        </ZoomPanViewport>
+                                    ) : (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-slate-400">
+                                            <Cpu className="w-12 h-12 mx-auto stroke-[1] mb-2 text-slate-300 animate-spin" />
+                                            <p className="text-xs">Đang nạp thuật toán...</p>
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         )}

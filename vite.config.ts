@@ -14,7 +14,7 @@ export default defineConfig(() => {
         server: {
             hmr: process.env.DISABLE_HMR !== 'true',
             watch: process.env.DISABLE_HMR === 'true' ? null : {},
-            allowedHosts: ['mac-home', 'vectorize.viet241.com'],
+            allowedHosts: ['mac-home', 'vectorize.viet241.com', 'img2svg.viet241.com'],
         },
         test: {
             environment: 'happy-dom',

@@ -10,7 +10,7 @@ import {
 import { processLoops } from '../utils/loopPipeline';
 import { quantizeImage } from '../utils/quantize';
 import { buildBwSvg, buildMultiColorSvg } from '../utils/svgBuilder';
-import { updateGrayscaleCanvas } from '../utils/previewUtils';
+import type { BinaryPreview } from '../utils/previewUtils';
 import type { VectorLayer, VectorStats } from '../types/vectorizer';
 import type { VectorSettings } from './useVectorSettings';
 import type { TraceResponse } from '../workers/trace.worker';
@@ -49,6 +49,7 @@ export function useVectorPipeline({
     const [simplifiedLoops, setSimplifiedLoops] = useState<Point[][]>([]);
     const [vectorLayers, setVectorLayers] = useState<VectorLayer[]>([]);
     const [svgContent, setSvgContent] = useState('');
+    const [binaryPreview, setBinaryPreview] = useState<BinaryPreview | null>(null);
 
     const requestIdRef = useRef(0);
     const workerRef = useRef<Worker | null>(getTraceWorker());
@@ -72,7 +73,10 @@ export function useVectorPipeline({
     } = settings;
 
     useEffect(() => {
-        if (!originalImageData || imageWidth === 0 || imageHeight === 0) return;
+        if (!originalImageData || imageWidth === 0 || imageHeight === 0) {
+            setBinaryPreview(null);
+            return;
+        }
 
         const currentId = ++requestIdRef.current;
         setIsProcessing(true);
@@ -81,7 +85,13 @@ export function useVectorPipeline({
             const run = async () => {
                 try {
                     const { grayscale } = preprocessImage(originalImageData, brightness, contrast);
-                    updateGrayscaleCanvas(grayscale, imageWidth, imageHeight, threshold, invertColors);
+                    setBinaryPreview({
+                        grayscale: new Uint8Array(grayscale),
+                        width: imageWidth,
+                        height: imageHeight,
+                        threshold,
+                        invert: invertColors,
+                    });
 
                     const worker = workerRef.current;
 
@@ -302,5 +312,6 @@ export function useVectorPipeline({
         vectorLayers,
         svgContent,
         reactPaths,
+        binaryPreview,
     };
 }
