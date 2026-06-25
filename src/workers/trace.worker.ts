@@ -1,4 +1,5 @@
-import { traceContours, linkSegments, rdpSimplify, buildPathString, type Point } from '../utils/vectorizer';
+import { traceContours, linkSegments } from '../utils/vectorizer';
+import { processLoops } from '../utils/loopPipeline';
 import type { VectorLayer } from '../types/vectorizer';
 
 export interface BwTraceRequest {
@@ -21,6 +22,7 @@ export interface MultiTraceRequest {
     rdpEpsilon: number;
     useBezier: boolean;
     noiseFilter: number;
+    isFillMode: boolean;
 }
 
 export type TraceRequest = BwTraceRequest | MultiTraceRequest;
@@ -29,7 +31,7 @@ export interface BwTraceResponse {
     id: number;
     mode: 'bw';
     segments: ReturnType<typeof traceContours>;
-    loops: Point[][];
+    loops: import('../utils/vectorizer').Point[][];
 }
 
 export interface MultiTraceResponse {
@@ -42,7 +44,7 @@ export interface MultiTraceResponse {
 export type TraceResponse = BwTraceResponse | MultiTraceResponse;
 
 function traceMultiLayers(req: MultiTraceRequest): MultiTraceResponse {
-    const { indices, palette, width, height, rdpEpsilon, useBezier, noiseFilter } = req;
+    const { indices, palette, width, height, rdpEpsilon, useBezier, noiseFilter, isFillMode } = req;
     const layers: VectorLayer[] = [];
     let rawSegmentsCount = 0;
 
@@ -55,20 +57,17 @@ function traceMultiLayers(req: MultiTraceRequest): MultiTraceResponse {
         const segments = traceContours(mask, width, height, 128, false);
         rawSegmentsCount += segments.length;
         const loops = linkSegments(segments);
-        const paths: string[] = [];
-        let pointCount = 0;
-
-        for (const loop of loops) {
-            if (loop.length < noiseFilter) continue;
-            const simplified = rdpSimplify(loop, rdpEpsilon);
-            if (simplified.length < 2) continue;
-            pointCount += simplified.length;
-            const dStr = buildPathString(simplified, useBezier);
-            if (dStr) paths.push(dStr);
-        }
+        const { paths, totalPoints } = processLoops(loops, {
+            noiseFilter,
+            rdpEpsilon,
+            useBezier,
+            isFillMode,
+            imageWidth: width,
+            imageHeight: height,
+        });
 
         if (paths.length > 0) {
-            layers.push({ color: palette[c].hex, paths, pointCount });
+            layers.push({ color: palette[c].hex, paths, pointCount: totalPoints });
         }
     }
 

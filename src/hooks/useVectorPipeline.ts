@@ -3,10 +3,11 @@ import {
     preprocessImage,
     traceContours,
     linkSegments,
-    rdpSimplify,
     buildPathString,
+    isClosedLoop,
     type Point,
 } from '../utils/vectorizer';
+import { processLoops } from '../utils/loopPipeline';
 import { quantizeImage } from '../utils/quantize';
 import { buildBwSvg, buildMultiColorSvg } from '../utils/svgBuilder';
 import { updateGrayscaleCanvas } from '../utils/previewUtils';
@@ -27,33 +28,6 @@ function getTraceWorker(): Worker | null {
         }
     }
     return sharedWorker;
-}
-
-function processLoops(
-    loops: Point[][],
-    settings: Pick<VectorSettings, 'noiseFilter' | 'rdpEpsilon' | 'useBezier'>,
-): { finalLoops: Point[][]; paths: string[]; totalPoints: number; filteredCount: number } {
-    const finalLoops: Point[][] = [];
-    const paths: string[] = [];
-    let totalPoints = 0;
-    let filteredCount = 0;
-
-    for (const loop of loops) {
-        if (loop.length < settings.noiseFilter) {
-            filteredCount++;
-            continue;
-        }
-
-        const simplified = rdpSimplify(loop, settings.rdpEpsilon);
-        if (simplified.length >= 2) {
-            finalLoops.push(simplified);
-            totalPoints += simplified.length;
-            const dStr = buildPathString(simplified, settings.useBezier);
-            if (dStr) paths.push(dStr);
-        }
-    }
-
-    return { finalLoops, paths, totalPoints, filteredCount };
 }
 
 export interface UseVectorPipelineInput {
@@ -142,6 +116,7 @@ export function useVectorPipeline({
                                     rdpEpsilon,
                                     useBezier,
                                     noiseFilter,
+                                    isFillMode,
                                 }, [indicesCopy.buffer]);
                             });
 
@@ -180,6 +155,7 @@ export function useVectorPipeline({
                             rdpEpsilon,
                             useBezier,
                             noiseFilter,
+                            isFillMode,
                         });
                         setVectorLayers(layers);
                         setSimplifiedLoops([]);
@@ -254,6 +230,9 @@ export function useVectorPipeline({
                         noiseFilter,
                         rdpEpsilon,
                         useBezier,
+                        isFillMode,
+                        imageWidth,
+                        imageHeight,
                     });
 
                     setSimplifiedLoops(finalLoops);
@@ -311,7 +290,7 @@ export function useVectorPipeline({
     ]);
 
     const reactPaths = useMemo(
-        () => simplifiedLoops.map((loop) => buildPathString(loop, useBezier)),
+        () => simplifiedLoops.map((loop) => buildPathString(loop, useBezier, { closed: isClosedLoop(loop) })),
         [simplifiedLoops, useBezier],
     );
 

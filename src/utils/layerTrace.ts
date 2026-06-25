@@ -1,4 +1,5 @@
-import { traceContours, linkSegments, rdpSimplify, buildPathString } from './vectorizer';
+import { traceContours, linkSegments } from './vectorizer';
+import { processLoops } from './loopPipeline';
 import type { QuantizeResult } from './quantize';
 import type { VectorLayer } from '../types/vectorizer';
 
@@ -6,6 +7,7 @@ export interface LayerTraceOptions {
     rdpEpsilon: number;
     useBezier: boolean;
     noiseFilter: number;
+    isFillMode: boolean;
 }
 
 export function traceColorLayers(
@@ -25,25 +27,20 @@ export function traceColorLayers(
 
         const segments = traceContours(mask, width, height, 128, false);
         const loops = linkSegments(segments);
-        const paths: string[] = [];
-        let pointCount = 0;
-
-        for (const loop of loops) {
-            if (loop.length < options.noiseFilter) continue;
-
-            const simplified = rdpSimplify(loop, options.rdpEpsilon);
-            if (simplified.length < 2) continue;
-
-            pointCount += simplified.length;
-            const dStr = buildPathString(simplified, options.useBezier);
-            if (dStr) paths.push(dStr);
-        }
+        const { paths, totalPoints } = processLoops(loops, {
+            noiseFilter: options.noiseFilter,
+            rdpEpsilon: options.rdpEpsilon,
+            useBezier: options.useBezier,
+            isFillMode: options.isFillMode,
+            imageWidth: width,
+            imageHeight: height,
+        });
 
         if (paths.length > 0) {
             layers.push({
                 color: palette[c].hex,
                 paths,
-                pointCount,
+                pointCount: totalPoints,
             });
         }
     }

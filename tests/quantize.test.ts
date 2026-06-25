@@ -38,6 +38,7 @@ describe('traceColorLayers', () => {
             rdpEpsilon: 0.5,
             useBezier: false,
             noiseFilter: 2,
+            isFillMode: true,
         });
         expect(layers.length).toBeGreaterThan(0);
         expect(layers[0].paths.length).toBeGreaterThan(0);

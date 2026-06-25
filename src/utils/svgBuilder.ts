@@ -27,7 +27,9 @@ export function buildBwSvg(options: BwSvgOptions): string {
     const sWidth = isFillMode ? 0 : strokeWidth;
 
     const pathElements = isFillMode
-        ? `<path d="${paths.join(' ')}" fill="${vectorColor}" fill-rule="evenodd" stroke="none" />`
+        ? paths.map(
+            (d) => `<path d="${d}" fill="${vectorColor}" fill-rule="evenodd" stroke="none" />`
+        ).join('\n  ')
         : paths.map((d) =>
             `<path d="${d}" fill="none" stroke="${vectorColor}" stroke-width="${sWidth}" stroke-linecap="round" stroke-linejoin="round" />`
         ).join('\n  ');
@@ -55,7 +57,9 @@ export function buildMultiColorSvg(options: MultiSvgOptions): string {
         if (layer.paths.length === 0) return [];
 
         if (isFillMode) {
-            return [`<path d="${layer.paths.join(' ')}" fill="${layer.color}" fill-rule="evenodd" stroke="none" />`];
+            return layer.paths.map(
+                (d) => `<path d="${d}" fill="${layer.color}" fill-rule="evenodd" stroke="none" />`
+            );
         }
 
         return layer.paths.map(

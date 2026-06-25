@@ -80,6 +80,18 @@ describe('linkSegments', () => {
         expect(loops.length).toBeGreaterThan(0);
         expect(loops[0].length).toBeGreaterThanOrEqual(3);
     });
+
+    it('links a closed rectangle into one loop', () => {
+        const segments: Segment[] = [
+            [{ x: 0, y: 0 }, { x: 10, y: 0 }],
+            [{ x: 10, y: 0 }, { x: 10, y: 10 }],
+            [{ x: 10, y: 10 }, { x: 0, y: 10 }],
+            [{ x: 0, y: 10 }, { x: 0, y: 0 }],
+        ];
+        const loops = linkSegments(segments);
+        expect(loops).toHaveLength(1);
+        expect(loops[0].length).toBeGreaterThanOrEqual(4);
+    });
 });
 
 describe('rdpSimplify', () => {
@@ -123,14 +135,24 @@ describe('buildPathString', () => {
         expect(d).toContain('Q');
     });
 
-    it('closes loop with Z when start and end are near', () => {
+    it('closes loop with Z when closed option is set', () => {
         const points: Point[] = [
             { x: 0, y: 0 },
             { x: 10, y: 0 },
             { x: 10, y: 10 },
             { x: 0.5, y: 0.5 },
         ];
-        const d = buildPathString(points, false);
+        const d = buildPathString(points, false, { closed: true });
         expect(d.endsWith('Z')).toBe(true);
+    });
+
+    it('does not close loop without closed option', () => {
+        const points: Point[] = [
+            { x: 0, y: 0 },
+            { x: 10, y: 0 },
+            { x: 10, y: 10 },
+        ];
+        const d = buildPathString(points, false, { closed: false });
+        expect(d.endsWith('Z')).toBe(false);
     });
 });

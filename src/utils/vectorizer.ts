@@ -165,17 +165,14 @@ export function traceContours(
 }
 
 /**
- * Ghép nối các đoạn thẳng phân tán thành các đường bao (loops) khép kín hoặc liên tục liên tục.
- * Sử dụng Spatial Hashing để tối ưu hóa thời gian chạy từ O(N^2) xuống O(N).
+ * Ghép nối các đoạn thẳng phân tán thành các đường bao (loops) khép kín hoặc liên tục.
+ * Đi bộ hai chiều từ mỗi segment để thu được loop đầy đủ hơn.
  */
 export function linkSegments(segments: Segment[]): Point[][] {
   const loops: Point[][] = [];
   if (segments.length === 0) return loops;
 
-  // Bản đồ kề để tìm kiếm điểm nối cực nhanh
   const adj = new Map<string, number[]>();
-  
-  // Hàm tạo mã băm cho tọa độ điểm (làm tròn để tránh lỗi số thực)
   const getHash = (p: Point) => `${p.x.toFixed(4)},${p.y.toFixed(4)}`;
 
   for (let i = 0; i < segments.length; i++) {
@@ -192,18 +189,9 @@ export function linkSegments(segments: Segment[]): Point[][] {
 
   const visited = new Set<number>();
 
-  for (let i = 0; i < segments.length; i++) {
-    if (visited.has(i)) continue;
-
-    const currentLoop: Point[] = [];
-    let segIdx = i;
-    visited.add(segIdx);
-
-    let [pStart, pEnd] = segments[segIdx];
-    currentLoop.push(pStart);
-    currentLoop.push(pEnd);
-
-    let currentPoint = pEnd;
+  const walkFrom = (startPoint: Point, prepend: boolean): Point[] => {
+    const chain: Point[] = [];
+    let currentPoint = startPoint;
     let keepGoing = true;
 
     while (keepGoing) {
@@ -215,14 +203,15 @@ export function linkSegments(segments: Segment[]): Point[][] {
         if (!visited.has(nextIdx)) {
           visited.add(nextIdx);
           const [n1, n2] = segments[nextIdx];
-          const h1 = getHash(n1);
+          const nextPoint = getHash(n1) === hash ? n2 : n1;
 
-          if (h1 === hash) {
-            currentPoint = n2;
+          if (prepend) {
+            chain.unshift(nextPoint);
           } else {
-            currentPoint = n1;
+            chain.push(nextPoint);
           }
-          currentLoop.push(currentPoint);
+
+          currentPoint = nextPoint;
           foundNext = true;
           break;
         }
@@ -233,7 +222,19 @@ export function linkSegments(segments: Segment[]): Point[][] {
       }
     }
 
-    // Chỉ giữ lại các đường nét có từ 3 điểm trở lên (bỏ các đường rác cực nhỏ)
+    return chain;
+  };
+
+  for (let i = 0; i < segments.length; i++) {
+    if (visited.has(i)) continue;
+
+    visited.add(i);
+    const [pStart, pEnd] = segments[i];
+
+    const backward = walkFrom(pStart, true);
+    const forward = walkFrom(pEnd, false);
+    const currentLoop = [...backward, pStart, pEnd, ...forward];
+
     if (currentLoop.length >= 2) {
       loops.push(currentLoop);
     }
@@ -242,13 +243,45 @@ export function linkSegments(segments: Segment[]): Point[][] {
   return loops;
 }
 
+export const LOOP_CLOSE_TOLERANCE = 1.5;
+const LOOP_CLOSE_TOLERANCE_SQ = LOOP_CLOSE_TOLERANCE * LOOP_CLOSE_TOLERANCE;
+
+const GIANT_SIMPLEX_AREA_RATIO = 0.15;
+const GIANT_SIMPLEX_MAX_POINTS = 4;
+
 /**
  * Khoảng cách bình phương giữa 2 điểm
  */
-function getSqDist(p1: Point, p2: Point): number {
+export function getSqDist(p1: Point, p2: Point): number {
   const dx = p1.x - p2.x;
   const dy = p1.y - p2.y;
   return dx * dx + dy * dy;
+}
+
+export function isClosedLoop(loop: Point[], toleranceSq = LOOP_CLOSE_TOLERANCE_SQ): boolean {
+  if (loop.length < 3) return false;
+  return getSqDist(loop[0], loop[loop.length - 1]) <= toleranceSq;
+}
+
+export function loopArea(loop: Point[]): number {
+  if (loop.length < 3) return 0;
+
+  let area = 0;
+  for (let i = 0; i < loop.length; i++) {
+    const j = (i + 1) % loop.length;
+    area += loop[i].x * loop[j].y - loop[j].x * loop[i].y;
+  }
+
+  return Math.abs(area) / 2;
+}
+
+export function isGiantSimplex(loop: Point[], imageWidth: number, imageHeight: number): boolean {
+  if (loop.length > GIANT_SIMPLEX_MAX_POINTS || loop.length < 3) return false;
+
+  const imageArea = imageWidth * imageHeight;
+  if (imageArea <= 0) return false;
+
+  return loopArea(loop) > imageArea * GIANT_SIMPLEX_AREA_RATIO;
 }
 
 /**
@@ -308,14 +341,27 @@ export function rdpSimplify(points: Point[], epsilon: number): Point[] {
   }
 }
 
+export interface BuildPathOptions {
+  closed?: boolean;
+}
+
 /**
  * Tạo chuỗi đường dẫn SVG (SVG d path string) dạng trơn mượt sử dụng đường cong Bézier bậc hai
  * hoặc nét vẽ đa giác thẳng thông thường.
  */
-export function buildPathString(points: Point[], useBezier: boolean): string {
+export function buildPathString(
+  points: Point[],
+  useBezier: boolean,
+  options: BuildPathOptions = {},
+): string {
   if (points.length === 0) return '';
+
+  const closed = options.closed ?? false;
+
   if (points.length < 3) {
-    return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    let d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    if (closed) d += ' Z';
+    return d;
   }
 
   if (!useBezier) {
@@ -323,17 +369,12 @@ export function buildPathString(points: Point[], useBezier: boolean): string {
     for (let i = 1; i < points.length; i++) {
       d += ` L ${points[i].x.toFixed(1)} ${points[i].y.toFixed(1)}`;
     }
-    // Nếu điểm đầu và điểm cuối gần nhau, coi như khép kín đường vẽ
-    const pStart = points[0];
-    const pEnd = points[points.length - 1];
-    const distSq = getSqDist(pStart, pEnd);
-    if (distSq < 4) {
+    if (closed) {
       d += ' Z';
     }
     return d;
   }
 
-  // Thuật toán làm mịn sử dụng quadratic bezier qua các trung điểm
   let d = '';
   const p0 = points[0];
   const p1 = points[1];
@@ -353,8 +394,7 @@ export function buildPathString(points: Point[], useBezier: boolean): string {
   const pLast = points[points.length - 1];
   d += ` L ${pLast.x.toFixed(1)} ${pLast.y.toFixed(1)}`;
 
-  const distSq = getSqDist(p0, pLast);
-  if (distSq < 4) {
+  if (closed) {
     d += ' Z';
   }
 
