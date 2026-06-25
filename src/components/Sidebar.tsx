@@ -13,6 +13,7 @@ import {
 import { sampleOptions } from '../samples/drawSamples';
 import type { VectorSettings } from '../hooks/useVectorSettings';
 import type { PaletteColor } from '../utils/quantize';
+import { ControlHint } from './ControlHint';
 
 interface SidebarProps {
     settings: VectorSettings;
@@ -68,7 +69,7 @@ export function Sidebar({
         <div className="lg:col-span-4 border-r border-slate-200 bg-white p-5 space-y-6 overflow-y-auto max-h-[calc(100vh-77px)] custom-scrollbar">
             <div className="space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                    <Upload className="w-4 h-4 text-indigo-500" />
+                    <Upload className="w-4 h-4 text-neutral-700" />
                     1. Tải Lên & Chọn Hình Vẽ
                 </h3>
 
@@ -79,7 +80,7 @@ export function Sidebar({
                     onClick={() => fileInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all duration-200 relative group overflow-hidden ${
                         isDragging
-                            ? 'border-indigo-500 bg-indigo-50/50'
+                            ? 'border-black bg-neutral-100/50'
                             : 'border-slate-200 hover:border-slate-300 bg-slate-50/50 hover:bg-slate-100/50'
                     }`}
                 >
@@ -92,11 +93,11 @@ export function Sidebar({
                     />
                     <div className="space-y-2 relative z-10">
                         <div className="mx-auto w-10 h-10 rounded-full bg-white flex items-center justify-center border border-slate-200 group-hover:scale-110 transition-transform duration-200">
-                            <FileImage className="w-5 h-5 text-indigo-500 group-hover:text-indigo-600" />
+                            <FileImage className="w-5 h-5 text-neutral-700 group-hover:text-black" />
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-slate-700">
-                                Kéo thả hình vào đây hoặc <span className="text-indigo-600 underline">chọn tệp</span>
+                                Kéo thả hình vào đây hoặc <span className="text-black underline">chọn tệp</span>
                             </p>
                             <p className="text-[10px] text-slate-500 mt-1">
                                 Hỗ trợ PNG, JPG, WebP. Nên chọn ảnh vẽ tương phản cao.
@@ -112,15 +113,15 @@ export function Sidebar({
                             <button
                                 key={sample.id}
                                 onClick={() => onLoadSample(sample.id)}
-                                className="group relative flex flex-col justify-end p-2.5 rounded-lg border border-slate-200 hover:border-indigo-500 bg-white text-left transition-all duration-200 cursor-pointer overflow-hidden h-16 shadow-sm hover:shadow"
+                                className="group relative flex flex-col justify-end p-2.5 rounded-lg border border-slate-200 hover:border-black bg-white text-left transition-all duration-200 cursor-pointer overflow-hidden h-16 shadow-sm hover:shadow"
                             >
-                                <span className="text-xs font-bold text-slate-700 group-hover:text-indigo-600 truncate w-full">
+                                <span className="text-xs font-bold text-slate-700 group-hover:text-black truncate w-full">
                                     {sample.label}
                                 </span>
                                 <span className="text-[9px] text-slate-500 line-clamp-1 w-full mt-0.5 leading-tight">
                                     {sample.desc}
                                 </span>
-                                <div className="absolute right-1 top-1 text-slate-300 group-hover:text-indigo-500 transition-colors">
+                                <div className="absolute right-1 top-1 text-slate-300 group-hover:text-neutral-700 transition-colors">
                                     <Sparkles className="w-3.5 h-3.5" />
                                 </div>
                             </button>
@@ -131,7 +132,7 @@ export function Sidebar({
 
             <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                    <Palette className="w-4 h-4 text-violet-500" />
+                    <Palette className="w-4 h-4 text-neutral-700" />
                     2. Chế Độ Màu
                 </h3>
 
@@ -140,7 +141,7 @@ export function Sidebar({
                         onClick={() => setColorMode('bw')}
                         className={`py-1.5 text-xs font-bold rounded transition-all ${
                             colorMode === 'bw'
-                                ? 'bg-indigo-600 text-white shadow-sm'
+                                ? 'bg-black text-white shadow-sm'
                                 : 'text-slate-600 hover:text-slate-900'
                         }`}
                     >
@@ -150,7 +151,7 @@ export function Sidebar({
                         onClick={() => setColorMode('multi')}
                         className={`py-1.5 text-xs font-bold rounded transition-all ${
                             colorMode === 'multi'
-                                ? 'bg-indigo-600 text-white shadow-sm'
+                                ? 'bg-black text-white shadow-sm'
                                 : 'text-slate-600 hover:text-slate-900'
                         }`}
                     >
@@ -163,7 +164,7 @@ export function Sidebar({
                         <div className="space-y-1">
                             <div className="flex justify-between text-xs font-medium">
                                 <span className="text-slate-500">Số màu (Palette)</span>
-                                <span className="font-mono text-violet-600">{colorCount}</span>
+                                <span className="font-mono text-black">{colorCount}</span>
                             </div>
                             <input
                                 type="range"
@@ -172,7 +173,7 @@ export function Sidebar({
                                 step="1"
                                 value={colorCount}
                                 onChange={(e) => setColorCount(parseInt(e.target.value))}
-                                className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-violet-500"
+                                className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-black"
                             />
                         </div>
                         {extractedPalette.length > 0 && (
@@ -187,6 +188,9 @@ export function Sidebar({
                                 ))}
                             </div>
                         )}
+                        <ControlHint>
+                            Giảm số màu nếu viền răng cưa; tăng ε (Smoothing) để làm mượt từng layer.
+                        </ControlHint>
                     </>
                 )}
             </div>
@@ -209,7 +213,7 @@ export function Sidebar({
                             max="100"
                             value={brightness}
                             onChange={(e) => setBrightness(parseInt(e.target.value))}
-                            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-black"
                         />
                     </div>
 
@@ -224,7 +228,7 @@ export function Sidebar({
                             max="100"
                             value={contrast}
                             onChange={(e) => setContrast(parseInt(e.target.value))}
-                            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-black"
                         />
                     </div>
 
@@ -244,12 +248,15 @@ export function Sidebar({
                             className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                         />
                     </div>
+                    <ControlHint>
+                        Tăng ngưỡng để gộp nét nhạt; giảm để loại guideline và vệt bụi giấy.
+                    </ControlHint>
                 </div>
             )}
 
             <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                    <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+                    <SlidersHorizontal className="w-4 h-4 text-neutral-700" />
                     {colorMode === 'bw' ? '4' : '3'}. Tùy Chỉnh Nét Vẽ Vector
                 </h3>
 
@@ -259,7 +266,7 @@ export function Sidebar({
                         <button
                             onClick={() => setIsFillMode(true)}
                             className={`py-1.5 text-xs font-bold rounded transition-all ${
-                                isFillMode ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                                isFillMode ? 'bg-black text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                             }`}
                         >
                             Tô Đặc (Solid Fill)
@@ -267,7 +274,7 @@ export function Sidebar({
                         <button
                             onClick={() => setIsFillMode(false)}
                             className={`py-1.5 text-xs font-bold rounded transition-all ${
-                                !isFillMode ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                                !isFillMode ? 'bg-black text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                             }`}
                         >
                             Đường Viền (Stroke)
@@ -279,7 +286,7 @@ export function Sidebar({
                     <div className="space-y-1">
                         <div className="flex justify-between text-xs font-medium">
                             <span className="text-slate-500">Độ dày đường nét (Stroke Width)</span>
-                            <span className="font-mono text-indigo-600">{strokeWidth}px</span>
+                            <span className="font-mono text-black">{strokeWidth}px</span>
                         </div>
                         <input
                             type="range"
@@ -288,7 +295,7 @@ export function Sidebar({
                             step="0.5"
                             value={strokeWidth}
                             onChange={(e) => setStrokeWidth(parseFloat(e.target.value))}
-                            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-black"
                         />
                     </div>
                 )}
@@ -296,7 +303,7 @@ export function Sidebar({
                 <div className="space-y-1">
                     <div className="flex justify-between text-xs font-medium">
                         <span className="text-slate-500">Độ Đơn Giản Hóa (Smoothing)</span>
-                        <span className="font-mono text-indigo-600">ε = {rdpEpsilon.toFixed(1)}</span>
+                        <span className="font-mono text-black">ε = {rdpEpsilon.toFixed(1)}</span>
                     </div>
                     <input
                         type="range"
@@ -305,14 +312,14 @@ export function Sidebar({
                         step="0.1"
                         value={rdpEpsilon}
                         onChange={(e) => setRdpEpsilon(parseFloat(e.target.value))}
-                        className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-black"
                     />
                 </div>
 
                 <div className="space-y-1">
                     <div className="flex justify-between text-xs font-medium">
                         <span className="text-slate-500">Bộ Lọc Khử Nhiễu (Noise Filter)</span>
-                        <span className="font-mono text-indigo-600">&gt; {noiseFilter} điểm</span>
+                        <span className="font-mono text-black">&gt; {noiseFilter} điểm</span>
                     </div>
                     <input
                         type="range"
@@ -321,7 +328,7 @@ export function Sidebar({
                         step="1"
                         value={noiseFilter}
                         onChange={(e) => setNoiseFilter(parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-black"
                     />
                 </div>
 
@@ -331,7 +338,7 @@ export function Sidebar({
                             type="checkbox"
                             checked={useBezier}
                             onChange={(e) => setUseBezier(e.target.checked)}
-                            className="w-4 h-4 rounded text-indigo-600 bg-white border-slate-300 focus:ring-indigo-500"
+                            className="w-4 h-4 rounded text-black bg-white border-slate-300 focus:ring-black"
                         />
                         <span className="text-xs font-medium text-slate-600">Sử dụng đường cong Bézier trơn</span>
                     </label>
@@ -342,12 +349,15 @@ export function Sidebar({
                                 type="checkbox"
                                 checked={invertColors}
                                 onChange={(e) => setInvertColors(e.target.checked)}
-                                className="w-4 h-4 rounded text-indigo-600 bg-white border-slate-300 focus:ring-indigo-500"
+                                className="w-4 h-4 rounded text-black bg-white border-slate-300 focus:ring-black"
                             />
                             <span className="text-xs font-medium text-slate-600">Đảo ngược màu nhị phân (Invert)</span>
                         </label>
                     )}
                 </div>
+                <ControlHint>
+                    ε khoảng <strong className="text-slate-600">1.0–1.5</strong>, bật Bézier và tăng khử nhiễu cho nét mượt sạch.
+                </ControlHint>
             </div>
 
             {colorMode === 'bw' && (
@@ -406,7 +416,7 @@ export function Sidebar({
                             type="checkbox"
                             checked={useTransparentBg}
                             onChange={(e) => setUseTransparentBg(e.target.checked)}
-                            className="w-4 h-4 rounded text-indigo-600 bg-white border-slate-300 focus:ring-indigo-500"
+                            className="w-4 h-4 rounded text-black bg-white border-slate-300 focus:ring-black"
                         />
                         <span className="text-xs font-medium text-slate-600">Thiết lập nền trong suốt (Transparent)</span>
                     </label>
@@ -424,7 +434,7 @@ export function Sidebar({
                             type="checkbox"
                             checked={useTransparentBg}
                             onChange={(e) => setUseTransparentBg(e.target.checked)}
-                            className="w-4 h-4 rounded text-indigo-600 bg-white border-slate-300 focus:ring-indigo-500"
+                            className="w-4 h-4 rounded text-black bg-white border-slate-300 focus:ring-black"
                         />
                         <span className="text-xs font-medium text-slate-600">Nền trong suốt (Transparent)</span>
                     </label>
@@ -452,7 +462,7 @@ export function Sidebar({
                     <button
                         onClick={onDownloadSvg}
                         disabled={!svgContent}
-                        className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
+                        className="flex-1 bg-black hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
                     >
                         <Download className="w-4 h-4" />
                         Tải Xuống SVG (.svg)

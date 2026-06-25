@@ -3,10 +3,26 @@ import type { ColorMode } from '../types/vectorizer';
 import type { PaletteColor } from '../utils/quantize';
 
 export const PRESETS = [
-    { id: 'logo', label: 'Tô Đặc (Logo)' },
-    { id: 'sketch', label: 'Bút Chì (Sketch)' },
-    { id: 'technical', label: 'Kỹ Thuật' },
-    { id: 'artistic', label: 'Nghệ Thuật' },
+    {
+        id: 'logo',
+        label: 'Logo',
+        description: 'Tô đặc, nét sắc — icon, logo, hình khối rõ ràng',
+    },
+    {
+        id: 'sketch',
+        label: 'Phác thảo',
+        description: 'Nét mảnh, chỉ viền — bút chì, sketch vẽ tay',
+    },
+    {
+        id: 'technical',
+        label: 'Bản vẽ',
+        description: 'Góc cạnh, ít làm mượt — sơ đồ, wireframe kỹ thuật',
+    },
+    {
+        id: 'artistic',
+        label: 'Minh họa',
+        description: 'Nét dày, làm mượt mạnh — poster, tranh nghệ thuật',
+    },
 ] as const;
 
 export function useVectorSettings() {

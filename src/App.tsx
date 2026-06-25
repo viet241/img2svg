@@ -94,7 +94,7 @@ export default function App() {
     }, [pipeline.svgContent, image.imageWidth, image.imageHeight, settings.useTransparentBg, settings.backgroundColor]);
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-indigo-600 selection:text-white" id="vectorizer-root">
+        <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-black selection:text-white" id="vectorizer-root">
             <Header activePreset={settings.activePreset} onPresetChange={settings.applyPreset} />
 
             <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">

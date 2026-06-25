@@ -1,9 +1,8 @@
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     FileImage,
     RefreshCw,
-    ZoomIn,
-    ZoomOut,
     SlidersHorizontal,
     Cpu,
     Eye,
@@ -11,6 +10,22 @@ import {
 } from 'lucide-react';
 import type { ViewMode, VectorLayer, VectorStats } from '../types/vectorizer';
 import type { Point } from '../utils/vectorizer';
+import { ZoomPanViewport, type PanOffset } from './ZoomPanViewport';
+import { ZoomSlider, ZOOM_MIN, ZOOM_MAX } from './ZoomSlider';
+import { ControlHint } from './ControlHint';
+
+const SIDE_BY_SIDE_MAX = 350;
+
+function getSideBySideDisplaySize(width: number, height: number) {
+    if (!width || !height) {
+        return { width: SIDE_BY_SIDE_MAX, height: SIDE_BY_SIDE_MAX };
+    }
+    const scale = Math.min(SIDE_BY_SIDE_MAX / width, SIDE_BY_SIDE_MAX / height);
+    return {
+        width: Math.round(width * scale),
+        height: Math.round(height * scale),
+    };
+}
 
 interface PreviewProps {
     viewMode: ViewMode;
@@ -116,7 +131,7 @@ function VectorSvgContent({
                         cx={pt.x}
                         cy={pt.y}
                         r={Math.max(1, 1.5 * (imageWidth / 420))}
-                        className="fill-indigo-500 stroke-white"
+                        className="fill-black stroke-white"
                         strokeWidth={Math.max(0.3, 0.5 * (imageWidth / 420))}
                     />
                 ))
@@ -152,6 +167,41 @@ export function Preview({
     stats,
 }: PreviewProps) {
     const vectorLabel = colorMode === 'multi' ? 'BẢN VECTOR SVG ĐA MÀU' : 'BẢN VECTOR HÓA SVG MỘT MÀU';
+    const previewSurfaceRef = useRef<HTMLDivElement>(null);
+    const [linkedPan, setLinkedPan] = useState<PanOffset>({ x: 0, y: 0 });
+
+    const isSideBySide = viewMode === 'sideBySide';
+    const linkedPanProps = isSideBySide ? { pan: linkedPan, onPanChange: setLinkedPan } : {};
+    const sideBySideSize = useMemo(
+        () => getSideBySideDisplaySize(imageWidth, imageHeight),
+        [imageWidth, imageHeight],
+    );
+    const sideBySideFrameClass = 'rounded shadow-sm overflow-hidden border border-slate-100';
+
+    const handleZoomReset = useCallback(() => {
+        onZoomReset();
+        setLinkedPan({ x: 0, y: 0 });
+    }, [onZoomReset]);
+
+    useEffect(() => {
+        if (zoom <= 100) {
+            setLinkedPan({ x: 0, y: 0 });
+        }
+    }, [zoom]);
+
+    useEffect(() => {
+        const el = previewSurfaceRef.current;
+        if (!el) return;
+
+        const onWheel = (e: WheelEvent) => {
+            e.preventDefault();
+            const step = e.deltaY > 0 ? -8 : 8;
+            onZoomChange(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom + step)));
+        };
+
+        el.addEventListener('wheel', onWheel, { passive: false });
+        return () => el.removeEventListener('wheel', onWheel);
+    }, [zoom, onZoomChange]);
 
     return (
         <div className="flex flex-col bg-slate-50 p-4 space-y-4 max-h-[calc(100vh-77px)] overflow-hidden flex-1">
@@ -167,7 +217,7 @@ export function Preview({
                             onClick={() => onViewModeChange(tab.id)}
                             className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold transition-all duration-150 ${
                                 viewMode === tab.id
-                                    ? 'bg-white text-indigo-600 border border-slate-200 shadow-sm'
+                                    ? 'bg-white text-black border border-slate-200 shadow-sm'
                                     : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 border border-transparent'
                             }`}
                         >
@@ -184,7 +234,7 @@ export function Preview({
                                 type="checkbox"
                                 checked={showCheckerboard}
                                 onChange={(e) => onShowCheckerboardChange(e.target.checked)}
-                                className="w-3.5 h-3.5 rounded text-indigo-600 bg-white border-slate-300"
+                                className="w-3.5 h-3.5 rounded text-black bg-white border-slate-300"
                             />
                             Caro nền trong suốt
                         </label>
@@ -196,52 +246,27 @@ export function Preview({
                                 type="checkbox"
                                 checked={showAnchors}
                                 onChange={(e) => onShowAnchorsChange(e.target.checked)}
-                                className="w-3.5 h-3.5 rounded text-indigo-600 bg-white border-slate-300"
+                                className="w-3.5 h-3.5 rounded text-black bg-white border-slate-300"
                             />
                             Hiển thị điểm Neo (Anchors)
                         </label>
                     )}
-
-                    <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">
-                        <button
-                            onClick={() => onZoomChange(Math.max(25, zoom - 25))}
-                            className="p-1 rounded text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-colors"
-                            title="Thu nhỏ"
-                        >
-                            <ZoomOut className="w-3.5 h-3.5" />
-                        </button>
-                        <span className="text-xs font-mono font-medium text-slate-600 px-1 w-10 text-center">
-                            {zoom}%
-                        </span>
-                        <button
-                            onClick={() => onZoomChange(Math.min(500, zoom + 25))}
-                            className="p-1 rounded text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-colors"
-                            title="Phóng to"
-                        >
-                            <ZoomIn className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                            onClick={onZoomReset}
-                            className="p-1 rounded text-slate-500 hover:text-slate-800 transition-colors"
-                            title="Đặt lại 100%"
-                        >
-                            <RefreshCw className="w-3 h-3" />
-                        </button>
-                    </div>
                 </div>
             </div>
 
             <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative min-h-[300px] flex items-center justify-center">
                 {isProcessing && (
-                    <div className="absolute top-4 right-4 z-40 bg-white/90 backdrop-blur border border-indigo-100 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
-                        <RefreshCw className="w-3.5 h-3.5 text-indigo-600 animate-spin" />
-                        <span className="text-[11px] font-bold text-indigo-600">
+                    <div className="absolute top-4 right-4 z-40 bg-white/90 backdrop-blur border border-neutral-200 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
+                        <RefreshCw className="w-3.5 h-3.5 text-black animate-spin" />
+                        <span className="text-[11px] font-bold text-black">
                             {usingWorker ? 'Worker đang trích xuất nét...' : 'Đang trích xuất nét...'}
                         </span>
                     </div>
                 )}
 
-                <div className="w-full h-full flex items-center justify-center p-6 relative overflow-auto custom-scrollbar">
+                <ZoomSlider zoom={zoom} onZoomChange={onZoomChange} onZoomReset={handleZoomReset} />
+
+                <div ref={previewSurfaceRef} className="w-full h-full relative overflow-hidden p-6 pr-14">
                     <AnimatePresence mode="wait">
                         {viewMode === 'sideBySide' && (
                             <motion.div
@@ -259,19 +284,22 @@ export function Preview({
                                             {imageWidth}x{imageHeight}px
                                         </span>
                                     </div>
-                                    <div className="flex-1 flex items-center justify-center p-4 min-h-[250px] relative bg-slate-50/20">
+                                    <div className="flex-1 min-h-[250px] relative bg-slate-50/20">
                                         {imageSrc ? (
-                                            <div
-                                                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'center center' }}
-                                                className="transition-transform duration-200 max-w-full max-h-full flex items-center justify-center"
+                                            <ZoomPanViewport
+                                                zoom={zoom}
+                                                className="absolute inset-0"
+                                                {...linkedPanProps}
+                                                contentClassName={sideBySideFrameClass}
+                                                contentStyle={sideBySideSize}
                                             >
                                                 <img
                                                     src={imageSrc}
                                                     alt="Original drawing"
-                                                    className="max-w-full max-h-[350px] object-contain rounded shadow-sm pointer-events-none border border-slate-100"
+                                                    className="w-full h-full object-contain pointer-events-none"
                                                     referrerPolicy="no-referrer"
                                                 />
-                                            </div>
+                                            </ZoomPanViewport>
                                         ) : (
                                             <div className="text-center text-slate-400">
                                                 <FileImage className="w-12 h-12 mx-auto stroke-[1] mb-2 text-slate-300" />
@@ -285,23 +313,25 @@ export function Preview({
                                     <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-500 flex items-center justify-between">
                                         <span>{vectorLabel}</span>
                                         {usingWorker && (
-                                            <span className="text-[10px] bg-violet-50 text-violet-600 font-mono px-1.5 py-0.5 rounded border border-violet-100 font-bold uppercase">
+                                            <span className="text-[10px] bg-neutral-100 text-black font-mono px-1.5 py-0.5 rounded border border-neutral-200 font-bold uppercase">
                                                 Worker
                                             </span>
                                         )}
                                     </div>
-                                    <div className="flex-1 flex items-center justify-center p-4 min-h-[250px] relative bg-slate-50/20">
+                                    <div className="flex-1 min-h-[250px] relative bg-slate-50/20">
                                         {showCheckerboard && useTransparentBg && (
-                                            <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] opacity-60" />
+                                            <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] opacity-60 pointer-events-none" />
                                         )}
                                         {imageSrc && stats ? (
-                                            <div
-                                                style={{
-                                                    transform: `scale(${zoom / 100})`,
-                                                    transformOrigin: 'center center',
+                                            <ZoomPanViewport
+                                                zoom={zoom}
+                                                className="absolute inset-0"
+                                                {...linkedPanProps}
+                                                contentClassName={sideBySideFrameClass}
+                                                contentStyle={{
+                                                    ...sideBySideSize,
                                                     backgroundColor: useTransparentBg ? 'transparent' : backgroundColor,
                                                 }}
-                                                className="transition-transform duration-200 w-full max-w-full max-h-[350px] h-[350px] rounded shadow-sm overflow-hidden flex items-center justify-center relative border border-slate-100"
                                             >
                                                 <VectorSvgContent
                                                     imageWidth={imageWidth}
@@ -317,7 +347,7 @@ export function Preview({
                                                     simplifiedLoops={simplifiedLoops}
                                                     showAnchors={showAnchors}
                                                 />
-                                            </div>
+                                            </ZoomPanViewport>
                                         ) : (
                                             <div className="text-center text-slate-400">
                                                 <Cpu className="w-12 h-12 mx-auto stroke-[1] mb-2 text-slate-300 animate-spin" />
@@ -341,18 +371,16 @@ export function Preview({
                                 <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-500">
                                     CHẾ ĐỘ XEM TRỌN VẸN VECTOR
                                 </div>
-                                <div className="flex-1 flex items-center justify-center p-8 min-h-[400px] relative bg-slate-50/10">
+                                <div className="flex-1 min-h-[400px] relative bg-slate-50/10">
                                     {showCheckerboard && useTransparentBg && (
-                                        <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] opacity-60" />
+                                        <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] opacity-60 pointer-events-none" />
                                     )}
                                     {imageSrc && stats && (
-                                        <div
-                                            style={{
-                                                transform: `scale(${zoom / 100})`,
-                                                transformOrigin: 'center center',
-                                                backgroundColor: useTransparentBg ? 'transparent' : backgroundColor,
-                                            }}
-                                            className="transition-transform duration-200 w-full max-w-full max-h-[420px] h-[420px] rounded shadow-sm flex items-center justify-center border border-slate-100"
+                                        <ZoomPanViewport
+                                            zoom={zoom}
+                                            className="absolute inset-0"
+                                            contentClassName="w-full max-w-full max-h-[420px] h-[420px] rounded shadow-sm border border-slate-100"
+                                            contentStyle={{ backgroundColor: useTransparentBg ? 'transparent' : backgroundColor }}
                                         >
                                             <VectorSvgContent
                                                 imageWidth={imageWidth}
@@ -368,7 +396,7 @@ export function Preview({
                                                 simplifiedLoops={simplifiedLoops}
                                                 showAnchors={showAnchors}
                                             />
-                                        </div>
+                                        </ZoomPanViewport>
                                     )}
                                 </div>
                             </motion.div>
@@ -386,16 +414,13 @@ export function Preview({
                                 <div className="bg-slate-100/80 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-500">
                                     ẢNH NHỊ PHÂN THỰC TẾ (1-BIT BINARY)
                                 </div>
-                                <div className="flex-1 flex items-center justify-center p-8 min-h-[400px] bg-slate-50/10 relative">
-                                    <div
-                                        style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'center center' }}
-                                        className="transition-transform duration-200 w-full max-w-full max-h-[420px] h-[420px] flex items-center justify-center"
-                                    >
+                                <div className="flex-1 min-h-[400px] bg-slate-50/10 relative">
+                                    <ZoomPanViewport zoom={zoom} className="absolute inset-0 p-8">
                                         <canvas
                                             id="grayscale-preview-canvas"
                                             className="max-w-full max-h-full object-contain rounded shadow-sm border border-slate-200"
                                         />
-                                    </div>
+                                    </ZoomPanViewport>
                                 </div>
                             </motion.div>
                         )}
