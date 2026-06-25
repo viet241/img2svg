@@ -1,0 +1,5 @@
+{
+  "name": "Image to SVG Vectorizer",
+  "description": "Ứng dụng chuyển đổi ảnh vẽ thành vector SVG đen trắng chất lượng cao với các bộ lọc tương phản, độ mượt và khử nhiễu.",
+  "requestFramePermissions": []
+}
