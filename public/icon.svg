@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+    <defs>
+        <pattern id="img2svg-grid" width="64" height="64" patternUnits="userSpaceOnUse">
+            <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#ffffff" stroke-opacity="0.11" stroke-width="8"/>
+        </pattern>
+        <linearGradient id="img2svg-vignette" x1="512" y1="0" x2="512" y2="1024" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#ffffff" stop-opacity="0.06"/>
+            <stop offset="1" stop-color="#000000" stop-opacity="0.22"/>
+        </linearGradient>
+    </defs>
+    <rect width="1024" height="1024" fill="#151517"/>
+    <rect width="1024" height="1024" fill="url(#img2svg-grid)"/>
+    <rect width="1024" height="1024" fill="url(#img2svg-vignette)"/>
+    <g stroke-linecap="round" stroke-linejoin="round">
+        <line x1="220" y1="560" x2="90" y2="540" stroke="#f4f4f5" stroke-width="12"/>
+        <line x1="220" y1="620" x2="110" y2="650" stroke="#f4f4f5" stroke-width="12"/>
+        <line x1="804" y1="560" x2="934" y2="540" stroke="#f4f4f5" stroke-width="12"/>
+        <line x1="804" y1="620" x2="914" y2="650" stroke="#f4f4f5" stroke-width="12"/>
+        <path d="M 512 812 C 350 812 250 662 250 512 L 250 362 L 340 212 L 430 362 C 470 342 554 342 594 362 L 684 212 L 774 362 L 774 512 C 774 662 674 812 512 812 Z" fill="rgba(244,244,245,0.1)" stroke="#f4f4f5" stroke-width="16"/>
+        <path d="M 372 500 C 392 460 432 460 452 500" fill="none" stroke="#f4f4f5" stroke-width="16"/>
+        <path d="M 572 500 C 592 460 632 460 652 500" fill="none" stroke="#f4f4f5" stroke-width="16"/>
+        <path d="M 512 590 L 482 550 L 542 550 Z" fill="#f4f4f5" stroke="#f4f4f5" stroke-width="8"/>
+        <line x1="512" y1="812" x2="350" y2="812" stroke="#f4f4f5" stroke-width="6" stroke-dasharray="12 12"/>
+        <line x1="512" y1="812" x2="674" y2="812" stroke="#f4f4f5" stroke-width="6" stroke-dasharray="12 12"/>
+        <circle cx="350" cy="812" r="8" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <circle cx="674" cy="812" r="8" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="502" y="802" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="240" y="502" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="240" y="352" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="330" y="202" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="420" y="352" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="584" y="352" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="674" y="202" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="764" y="352" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="764" y="502" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="80" y="530" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="100" y="640" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="924" y="530" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <rect x="904" y="640" width="20" height="20" rx="2" fill="#f4f4f5" stroke="#737373" stroke-width="4"/>
+        <g transform="translate(674, 812) rotate(-45) scale(1.2)">
+            <path d="M 0 0 C -15 25 -25 50 -25 80 L 25 80 C 25 50 15 25 0 0 Z" fill="#f4f4f5"/>
+            <line x1="0" y1="25" x2="0" y2="60" stroke="#737373" stroke-width="4"/>
+            <circle cx="0" cy="65" r="6" fill="#737373"/>
+            <rect x="-25" y="85" width="50" height="70" rx="8" fill="#f4f4f5"/>
+            <line x1="-10" y1="100" x2="-10" y2="140" stroke="#737373" stroke-width="4" opacity="0.6"/>
+            <line x1="10" y1="100" x2="10" y2="140" stroke="#737373" stroke-width="4" opacity="0.6"/>
+        </g>
+    </g>
+</svg>
