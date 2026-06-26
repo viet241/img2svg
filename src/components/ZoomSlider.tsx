@@ -10,12 +10,17 @@ interface ZoomSliderProps {
     onZoomReset: () => void;
 }
 
-export function ZoomSlider({ zoom, onZoomChange, onZoomReset }: ZoomSliderProps) {
+function ZoomControls({
+    zoom,
+    onZoomChange,
+    onZoomReset,
+    rangeClassName,
+}: ZoomSliderProps & { rangeClassName: string }) {
     const { t } = useI18n();
 
     return (
-        <div className="absolute z-30 flex items-center gap-2 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-sm bottom-3 left-3 right-3 px-3 py-2 md:bottom-auto md:left-auto md:right-3 md:top-1/2 md:-translate-y-1/2 md:flex-col md:px-2 md:py-3 md:w-auto">
-            <span className="text-[10px] font-mono font-semibold text-slate-600 tabular-nums shrink-0 md:order-none">
+        <>
+            <span className="text-[10px] font-mono font-semibold text-slate-600 tabular-nums shrink-0">
                 {zoom}%
             </span>
             <input
@@ -25,7 +30,7 @@ export function ZoomSlider({ zoom, onZoomChange, onZoomReset }: ZoomSliderProps)
                 step={5}
                 value={zoom}
                 onChange={(e) => onZoomChange(parseInt(e.target.value, 10))}
-                className="zoom-slider-responsive accent-black flex-1 min-w-0 md:flex-none"
+                className={rangeClassName}
                 aria-label={t('zoom.label')}
             />
             <button
@@ -36,7 +41,31 @@ export function ZoomSlider({ zoom, onZoomChange, onZoomReset }: ZoomSliderProps)
             >
                 <RefreshCw className="w-3 h-3" />
             </button>
-        </div>
+        </>
+    );
+}
+
+export function ZoomSlider({ zoom, onZoomChange, onZoomReset }: ZoomSliderProps) {
+    return (
+        <>
+            <div className="absolute z-30 flex md:hidden items-center gap-2 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-sm bottom-3 left-3 right-3 px-3 py-2">
+                <ZoomControls
+                    zoom={zoom}
+                    onZoomChange={onZoomChange}
+                    onZoomReset={onZoomReset}
+                    rangeClassName="zoom-slider-horizontal accent-black flex-1 min-w-0"
+                />
+            </div>
+
+            <div className="hidden md:flex z-30 shrink-0 self-stretch my-4 mr-5 flex-col items-center gap-2 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-sm px-2.5 py-3 w-11">
+                <ZoomControls
+                    zoom={zoom}
+                    onZoomChange={onZoomChange}
+                    onZoomReset={onZoomReset}
+                    rangeClassName="zoom-slider-vertical-full accent-black flex-1 min-h-0 w-full"
+                />
+            </div>
+        </>
     );
 }
 

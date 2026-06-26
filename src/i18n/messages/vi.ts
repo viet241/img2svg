@@ -20,6 +20,8 @@ export const vi: Messages = {
         uploadTitle: '1. Tải Lên & Chọn Hình Vẽ',
         dropzone: 'Kéo thả hình vào đây hoặc <pick>chọn tệp</pick>',
         dropzoneHint: 'Hỗ trợ PNG, JPG, WebP. Nên chọn ảnh vẽ tương phản cao.',
+        pageDrop: 'Thả ảnh để tải lên hoặc thay thế',
+        pageDropHint: 'PNG, JPG, WebP và các định dạng ảnh khác',
         samplesLabel: 'Hoặc thử ngay với các mẫu vẽ tay:',
         colorModeTitle: '2. Chế Độ Màu',
         bw: 'Đen Trắng',

@@ -1,8 +1,38 @@
-import { useState, useRef, useCallback, type ChangeEvent, type DragEvent } from 'react';
+import { useState, useRef, useCallback, useEffect, type ChangeEvent, type DragEvent } from 'react';
 import { renderSampleToDataUrl } from '../samples/drawSamples';
 
 export const MAX_IMAGE_DIM_WITH_WORKER = 1600;
 export const MAX_IMAGE_DIM_FALLBACK = 900;
+
+function isImageFile(file: File): boolean {
+    return file.type.startsWith('image/');
+}
+
+function getImageFileFromTransfer(dataTransfer: DataTransfer | null): File | null {
+    if (!dataTransfer?.files?.length) {
+        return null;
+    }
+
+    for (const file of Array.from(dataTransfer.files)) {
+        if (isImageFile(file)) {
+            return file;
+        }
+    }
+
+    return null;
+}
+
+function hasImageTransfer(dataTransfer: DataTransfer | null): boolean {
+    if (!dataTransfer) {
+        return false;
+    }
+
+    if (Array.from(dataTransfer.types).includes('Files')) {
+        return true;
+    }
+
+    return Array.from(dataTransfer.items).some((item) => item.kind === 'file' && item.type.startsWith('image/'));
+}
 
 export function useImageSource(workerAvailable = true) {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -10,7 +40,9 @@ export function useImageSource(workerAvailable = true) {
     const [imageWidth, setImageWidth] = useState(0);
     const [imageHeight, setImageHeight] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
+    const [isPageDragging, setIsPageDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const pageDragDepthRef = useRef(0);
 
     const maxDim = workerAvailable ? MAX_IMAGE_DIM_WITH_WORKER : MAX_IMAGE_DIM_FALLBACK;
 
@@ -49,6 +81,10 @@ export function useImageSource(workerAvailable = true) {
     }, [maxDim]);
 
     const readFile = useCallback((file: File) => {
+        if (!isImageFile(file)) {
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = (event) => {
             if (event.target?.result) {
@@ -60,21 +96,96 @@ export function useImageSource(workerAvailable = true) {
 
     const handleFileChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) readFile(file);
+        if (file) {
+            readFile(file);
+        }
+        e.target.value = '';
     }, [readFile]);
 
     const handleDragOver = useCallback((e: DragEvent) => {
+        if (!hasImageTransfer(e.dataTransfer)) {
+            return;
+        }
         e.preventDefault();
+        e.stopPropagation();
         setIsDragging(true);
     }, []);
 
-    const handleDragLeave = useCallback(() => setIsDragging(false), []);
+    const handleDragLeave = useCallback((e: DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    }, []);
 
     const handleDrop = useCallback((e: DragEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         setIsDragging(false);
-        const file = e.dataTransfer.files?.[0];
-        if (file) readFile(file);
+        setIsPageDragging(false);
+        pageDragDepthRef.current = 0;
+
+        const file = getImageFileFromTransfer(e.dataTransfer);
+        if (file) {
+            readFile(file);
+        }
+    }, [readFile]);
+
+    useEffect(() => {
+        const onDragEnter = (e: globalThis.DragEvent) => {
+            if (!hasImageTransfer(e.dataTransfer)) {
+                return;
+            }
+            e.preventDefault();
+            pageDragDepthRef.current += 1;
+            setIsPageDragging(true);
+            setIsDragging(true);
+        };
+
+        const onDragOver = (e: globalThis.DragEvent) => {
+            if (!hasImageTransfer(e.dataTransfer)) {
+                return;
+            }
+            e.preventDefault();
+        };
+
+        const onDragLeave = (e: globalThis.DragEvent) => {
+            if (!hasImageTransfer(e.dataTransfer)) {
+                return;
+            }
+            e.preventDefault();
+            pageDragDepthRef.current = Math.max(0, pageDragDepthRef.current - 1);
+            if (pageDragDepthRef.current === 0) {
+                setIsPageDragging(false);
+                setIsDragging(false);
+            }
+        };
+
+        const onDrop = (e: globalThis.DragEvent) => {
+            if (!hasImageTransfer(e.dataTransfer)) {
+                return;
+            }
+            e.preventDefault();
+            pageDragDepthRef.current = 0;
+            setIsPageDragging(false);
+            setIsDragging(false);
+
+            const file = getImageFileFromTransfer(e.dataTransfer);
+            if (file) {
+                readFile(file);
+            }
+        };
+
+        window.addEventListener('dragenter', onDragEnter);
+        window.addEventListener('dragover', onDragOver);
+        window.addEventListener('dragleave', onDragLeave);
+        window.addEventListener('drop', onDrop);
+
+        return () => {
+            window.removeEventListener('dragenter', onDragEnter);
+            window.removeEventListener('dragover', onDragOver);
+            window.removeEventListener('dragleave', onDragLeave);
+            window.removeEventListener('drop', onDrop);
+        };
     }, [readFile]);
 
     const loadSample = useCallback((sampleId: number) => {
@@ -88,6 +199,7 @@ export function useImageSource(workerAvailable = true) {
         imageWidth,
         imageHeight,
         isDragging,
+        isPageDragging,
         fileInputRef,
         handleImageLoad,
         handleFileChange,

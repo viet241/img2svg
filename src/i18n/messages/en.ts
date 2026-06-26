@@ -18,6 +18,8 @@ export const en = {
         uploadTitle: '1. Upload & Pick Artwork',
         dropzone: 'Drop an image here or <pick>choose a file</pick>',
         dropzoneHint: 'Supports PNG, JPG, WebP. High-contrast artwork works best.',
+        pageDrop: 'Drop image to upload or replace',
+        pageDropHint: 'PNG, JPG, WebP, and other image formats',
         samplesLabel: 'Or try a hand-drawn sample:',
         colorModeTitle: '2. Color Mode',
         bw: 'Black & White',
@@ -95,6 +97,8 @@ export interface Messages {
         uploadTitle: string;
         dropzone: string;
         dropzoneHint: string;
+        pageDrop: string;
+        pageDropHint: string;
         samplesLabel: string;
         colorModeTitle: string;
         bw: string;

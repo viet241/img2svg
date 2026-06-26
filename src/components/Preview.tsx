@@ -276,7 +276,7 @@ export function Preview({
                 </div>
             </div>
 
-            <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative min-h-[300px] flex items-center justify-center">
+            <div className="flex-1 min-h-[300px] min-h-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative flex flex-col md:flex-row md:gap-5">
                 {isProcessing && (
                     <div className="absolute top-4 right-4 z-40 bg-white/90 backdrop-blur border border-neutral-200 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
                         <RefreshCw className="w-3.5 h-3.5 text-black animate-spin" />
@@ -286,9 +286,7 @@ export function Preview({
                     </div>
                 )}
 
-                <ZoomSlider zoom={zoom} onZoomChange={onZoomChange} onZoomReset={handleZoomReset} />
-
-                <div ref={previewSurfaceRef} className="w-full h-full relative overflow-hidden p-4 pb-20 md:p-6 md:pb-6 md:pr-14">
+                <div ref={previewSurfaceRef} className="flex-1 min-h-0 w-full relative overflow-hidden p-4 pb-20 md:p-6 md:pb-6">
                     <AnimatePresence mode="wait">
                         {viewMode === 'sideBySide' && (
                             <motion.div
@@ -466,6 +464,8 @@ export function Preview({
                         )}
                     </AnimatePresence>
                 </div>
+
+                <ZoomSlider zoom={zoom} onZoomChange={onZoomChange} onZoomReset={handleZoomReset} />
             </div>
         </div>
     );

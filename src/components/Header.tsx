@@ -1,6 +1,7 @@
-import { Cpu, Palette, Scissors, Compass, Sparkles } from 'lucide-react';
+import { Palette, Scissors, Compass, Sparkles } from 'lucide-react';
 import { PRESET_IDS } from '../hooks/useVectorSettings';
 import { useI18n } from '../i18n/context';
+import { AppLogo } from './AppLogo';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 const PRESET_ICONS = {
@@ -22,9 +23,7 @@ export function Header({ activePreset, onPresetChange }: HeaderProps) {
         <header className="border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4 sticky top-0 z-50">
             <div className="flex items-start justify-between gap-3 min-w-0 md:items-center md:justify-start md:shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="bg-black p-2 sm:p-2.5 rounded-xl shadow-sm shrink-0">
-                        <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-pulse" />
-                    </div>
+                    <AppLogo />
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-950">

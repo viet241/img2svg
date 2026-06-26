@@ -8,6 +8,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { Preview } from './components/Preview';
 import { StatsBar } from './components/StatsBar';
+import { GlobalDropOverlay } from './components/GlobalDropOverlay';
 import { useImageSource } from './hooks/useImageSource';
 import { useVectorSettings } from './hooks/useVectorSettings';
 import { useVectorPipeline } from './hooks/useVectorPipeline';
@@ -95,6 +96,7 @@ export default function App() {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-black selection:text-white" id="vectorizer-root">
+            <GlobalDropOverlay visible={image.isPageDragging} />
             <Header activePreset={settings.activePreset} onPresetChange={settings.applyPreset} />
 
             <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
