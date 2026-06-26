@@ -2,7 +2,7 @@ import type { Messages } from './en';
 
 export const vi: Messages = {
     header: {
-        tagline: 'Chuyển đổi ảnh thành SVG vector',
+        tagline: 'Biến ảnh thành véc-tơ sắc nét',
         preset: 'Preset',
     },
     preset: {

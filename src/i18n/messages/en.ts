@@ -1,6 +1,6 @@
 export const en = {
     header: {
-        tagline: 'Convert images to SVG vectors',
+        tagline: 'Make any sketch scalable',
         preset: 'Preset',
     },
     preset: {
