@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
     FileImage,
     RefreshCw,
-    SlidersHorizontal,
+    SquareSplitHorizontal,
     Cpu,
     Eye,
-    Layers,
+    EyeDashed,
 } from 'lucide-react';
 import type { ViewMode, VectorLayer, VectorStats } from '../types/vectorizer';
 import type { Point } from '../utils/vectorizer';
@@ -232,9 +232,9 @@ export function Preview({
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
                 <div className="flex gap-1.5 p-1 bg-slate-100 rounded-lg border border-slate-200">
                     {[
-                        { id: 'sideBySide' as const, label: t('preview.tabSideBySide'), icon: Layers },
+                        { id: 'sideBySide' as const, label: t('preview.tabSideBySide'), icon: SquareSplitHorizontal },
                         { id: 'vectorOnly' as const, label: t('preview.tabVector'), icon: Eye },
-                        { id: 'thresholdOnly' as const, label: t('preview.tabBinary'), icon: SlidersHorizontal },
+                        { id: 'thresholdOnly' as const, label: t('preview.tabBinary'), icon: EyeDashed },
                     ].map((tab) => (
                         <button
                             key={tab.id}

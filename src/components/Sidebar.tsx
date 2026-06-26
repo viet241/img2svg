@@ -4,7 +4,6 @@ import {
     Download,
     Copy,
     FileImage,
-    Sliders,
     Check,
     SlidersHorizontal,
     Sparkles,
@@ -201,7 +200,7 @@ export function Sidebar({
             {colorMode === 'bw' && (
                 <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-4">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                        <Sliders className="w-4 h-4 text-emerald-600" />
+                        <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
                         {t('sidebar.thresholdTitle')}
                     </h3>
 

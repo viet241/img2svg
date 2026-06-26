@@ -21,7 +21,7 @@
     "deploy": "bash ./scripts/deploy.sh"
   },
   "dependencies": {
-    "lucide-react": "^0.546.0",
+    "lucide-react": "^1.21.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",
     "react-dom": "^19.0.1"
@@ -29,13 +29,13 @@
   "devDependencies": {
     "@fontsource/inter": "^5.2.6",
     "@tailwindcss/vite": "^4.1.14",
-    "@vercel/og": "^0.8.5",
     "@types/node": "^22.14.0",
+    "@vercel/og": "^0.8.5",
     "@vitejs/plugin-react": "^5.0.4",
     "happy-dom": "^20.10.6",
     "sharp": "^0.34.3",
-    "to-ico": "^1.1.5",
     "tailwindcss": "^4.1.14",
+    "to-ico": "^1.1.5",
     "tsx": "^4.20.3",
     "typescript": "~5.8.2",
     "vite": "^6.2.3",
