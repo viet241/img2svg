@@ -16,6 +16,8 @@ import { drawBinaryPreview, type BinaryPreview } from '../utils/previewUtils';
 import { useI18n } from '../i18n/context';
 
 const SIDE_BY_SIDE_MAX = 350;
+const CHECKERBOARD_CLASS =
+    'absolute inset-0 bg-[radial-gradient(#94a3b8_1.25px,transparent_1.25px)] [background-size:16px_16px] opacity-75 pointer-events-none';
 
 function getSideBySideDisplaySize(width: number, height: number) {
     if (!width || !height) {
@@ -276,7 +278,7 @@ export function Preview({
                 </div>
             </div>
 
-            <div className="flex-1 min-h-[300px] min-h-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative flex flex-col md:flex-row md:gap-5">
+            <div className="flex-1 min-h-[300px] min-h-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative flex flex-col md:flex-row">
                 {isProcessing && (
                     <div className="absolute top-4 right-4 z-40 bg-white/90 backdrop-blur border border-neutral-200 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
                         <RefreshCw className="w-3.5 h-3.5 text-black animate-spin" />
@@ -340,7 +342,7 @@ export function Preview({
                                     </div>
                                     <div className="flex-1 min-h-[250px] relative bg-slate-50/20">
                                         {showCheckerboard && useTransparentBg && (
-                                            <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] opacity-60 pointer-events-none" />
+                                            <div className={CHECKERBOARD_CLASS} />
                                         )}
                                         {imageSrc && stats ? (
                                             <ZoomPanViewport
@@ -393,7 +395,7 @@ export function Preview({
                                 </div>
                                 <div className="flex-1 min-h-[400px] relative bg-slate-50/10">
                                     {showCheckerboard && useTransparentBg && (
-                                        <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] opacity-60 pointer-events-none" />
+                                        <div className={CHECKERBOARD_CLASS} />
                                     )}
                                     {imageSrc && stats && (
                                         <ZoomPanViewport

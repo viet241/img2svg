@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, type ChangeEvent, type DragEvent } from 'react';
 import { renderSampleToDataUrl } from '../samples/drawSamples';
+import { sanitizeFileBaseName } from '../utils/exportFileName';
 
 export const MAX_IMAGE_DIM_WITH_WORKER = 1600;
 export const MAX_IMAGE_DIM_FALLBACK = 900;
@@ -39,6 +40,7 @@ export function useImageSource(workerAvailable = true) {
     const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
     const [imageWidth, setImageWidth] = useState(0);
     const [imageHeight, setImageHeight] = useState(0);
+    const [sourceBaseName, setSourceBaseName] = useState('sample-1');
     const [isDragging, setIsDragging] = useState(false);
     const [isPageDragging, setIsPageDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -88,6 +90,7 @@ export function useImageSource(workerAvailable = true) {
         const reader = new FileReader();
         reader.onload = (event) => {
             if (event.target?.result) {
+                setSourceBaseName(sanitizeFileBaseName(file.name));
                 handleImageLoad(event.target.result as string);
             }
         };
@@ -189,6 +192,7 @@ export function useImageSource(workerAvailable = true) {
     }, [readFile]);
 
     const loadSample = useCallback((sampleId: number) => {
+        setSourceBaseName(`sample-${sampleId}`);
         const dataUrl = renderSampleToDataUrl(sampleId);
         if (dataUrl) handleImageLoad(dataUrl);
     }, [handleImageLoad]);
@@ -198,6 +202,7 @@ export function useImageSource(workerAvailable = true) {
         originalImageData,
         imageWidth,
         imageHeight,
+        sourceBaseName,
         isDragging,
         isPageDragging,
         fileInputRef,

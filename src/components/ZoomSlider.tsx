@@ -57,7 +57,7 @@ export function ZoomSlider({ zoom, onZoomChange, onZoomReset }: ZoomSliderProps)
                 />
             </div>
 
-            <div className="hidden md:flex z-30 shrink-0 self-stretch my-4 mr-5 flex-col items-center gap-2 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-sm px-2.5 py-3 w-11">
+            <div className="hidden md:flex z-30 shrink-0 self-stretch my-6 mr-5 flex-col items-center gap-2 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-sm px-2.5 py-3 w-11">
                 <ZoomControls
                     zoom={zoom}
                     onZoomChange={onZoomChange}

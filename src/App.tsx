@@ -13,6 +13,7 @@ import { useImageSource } from './hooks/useImageSource';
 import { useVectorSettings } from './hooks/useVectorSettings';
 import { useVectorPipeline } from './hooks/useVectorPipeline';
 import type { ViewMode } from './types/vectorizer';
+import { buildExportFileName } from './utils/exportFileName';
 
 export default function App() {
     const image = useImageSource(true);
@@ -55,12 +56,12 @@ export default function App() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `vectorized-drawing-${Date.now()}.svg`;
+        link.download = buildExportFileName(image.sourceBaseName, 'vectorized', 'svg');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-    }, [pipeline.svgContent]);
+    }, [pipeline.svgContent, image.sourceBaseName]);
 
     const handleDownloadPng = useCallback(() => {
         if (!pipeline.svgContent) return;
@@ -84,7 +85,7 @@ export default function App() {
                 const pngURL = canvas.toDataURL('image/png');
                 const downloadLink = document.createElement('a');
                 downloadLink.href = pngURL;
-                downloadLink.download = `vectorized-drawing-${Date.now()}.png`;
+                downloadLink.download = buildExportFileName(image.sourceBaseName, 'vectorized-2x', 'png');
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
@@ -92,7 +93,7 @@ export default function App() {
             URL.revokeObjectURL(blobURL);
         };
         img.src = blobURL;
-    }, [pipeline.svgContent, image.imageWidth, image.imageHeight, settings.useTransparentBg, settings.backgroundColor]);
+    }, [pipeline.svgContent, image.imageWidth, image.imageHeight, image.sourceBaseName, settings.useTransparentBg, settings.backgroundColor]);
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-black selection:text-white" id="vectorizer-root">
