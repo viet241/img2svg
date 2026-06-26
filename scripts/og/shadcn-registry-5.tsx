@@ -1,0 +1,144 @@
+/* @ogimagecn/shadcn-registry-5 — https://www.ogimagecn.com/docs/components/shadcn-registry-5 */
+
+import React from 'react';
+
+export interface ShadcnRegistry5Props {
+    name: string;
+    title: string;
+    description?: string;
+    logo?: string;
+}
+
+export const ShadcnRegistry5 = ({
+    name,
+    title,
+    description = '',
+    logo = '',
+}: ShadcnRegistry5Props) => (
+    <div
+        style={{
+            backgroundColor: '#fafafa',
+            color: '#0a0a0a',
+            display: 'flex',
+            height: '100%',
+            position: 'relative',
+            width: '100%',
+        }}
+    >
+        <div
+            style={{
+                borderLeft: '1px dashed #44403c',
+                bottom: 0,
+                left: '64px',
+                position: 'absolute',
+                top: 0,
+                width: '1px',
+            }}
+        />
+        <div
+            style={{
+                borderLeft: '1px dashed #44403c',
+                bottom: 0,
+                position: 'absolute',
+                right: '64px',
+                top: 0,
+                width: '1px',
+            }}
+        />
+        <div
+            style={{
+                borderTop: '1px dashed #44403c',
+                height: '1px',
+                left: 0,
+                position: 'absolute',
+                right: 0,
+                top: '64px',
+            }}
+        />
+        <div
+            style={{
+                borderTop: '1px dashed #44403c',
+                bottom: '64px',
+                height: '1px',
+                left: 0,
+                position: 'absolute',
+                right: 0,
+            }}
+        />
+
+        <div
+            style={{
+                alignItems: 'center',
+                bottom: '128px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                left: '128px',
+                position: 'absolute',
+                right: '128px',
+                textAlign: 'center',
+                top: '128px',
+                width: '896px',
+            }}
+        >
+            <div
+                style={{
+                    alignItems: 'center',
+                    display: 'flex',
+                    gap: '12px',
+                    marginBottom: '32px',
+                }}
+            >
+                {logo ? (
+                    <img
+                        height={40}
+                        src={logo}
+                        width={40}
+                        style={{ objectFit: 'contain' }}
+                    />
+                ) : (
+                    <div
+                        style={{
+                            backgroundColor: 'rgba(0,0,0,0.3)',
+                            borderRadius: '12px',
+                            height: '40px',
+                            width: '40px',
+                        }}
+                    />
+                )}
+                <div style={{ color: '#18181b', fontSize: '28px', fontWeight: 600 }}>
+                    {name}
+                </div>
+            </div>
+
+            <div
+                style={{
+                    display: 'flex',
+                    fontSize: title.length > 30 ? 72 : 88,
+                    fontWeight: 800,
+                    letterSpacing: '-0.04em',
+                    lineHeight: 1,
+                    textWrap: 'balance',
+                }}
+            >
+                {title}
+            </div>
+
+            {description ? (
+                <div
+                    style={{
+                        color: '#71717a',
+                        display: 'flex',
+                        fontSize: '28px',
+                        fontWeight: 400,
+                        lineHeight: 1.5,
+                        marginTop: '32px',
+                        textWrap: 'balance',
+                    }}
+                >
+                    {description}
+                </div>
+            ) : null}
+        </div>
+    </div>
+);
