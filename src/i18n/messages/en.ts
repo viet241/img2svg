@@ -46,7 +46,6 @@ export const en = {
         bgColor: 'SVG background',
         transparent: 'Transparent background',
         downloadSvg: 'Download SVG (.svg)',
-        downloadPng: 'Download PNG (2x)',
         copySvg: 'Copy SVG source',
         copied: 'SVG copied!',
         hintPalette: 'Reduce colors if edges look jagged; increase ε (Smoothing) to soften each layer.',
@@ -125,7 +124,6 @@ export interface Messages {
         bgColor: string;
         transparent: string;
         downloadSvg: string;
-        downloadPng: string;
         copySvg: string;
         copied: string;
         hintPalette: string;

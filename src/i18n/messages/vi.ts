@@ -48,7 +48,6 @@ export const vi: Messages = {
         bgColor: 'Màu nền SVG',
         transparent: 'Thiết lập nền trong suốt (Transparent)',
         downloadSvg: 'Tải Xuống SVG (.svg)',
-        downloadPng: 'Tải ảnh PNG (2x)',
         copySvg: 'Sao chép mã nguồn SVG',
         copied: 'Đã sao chép mã SVG!',
         hintPalette: 'Giảm số màu nếu viền răng cưa; tăng ε (Smoothing) để làm mượt từng layer.',

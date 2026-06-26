@@ -30,7 +30,6 @@ interface SidebarProps {
     copied: boolean;
     onCopySvg: () => void;
     onDownloadSvg: () => void;
-    onDownloadPng: () => void;
     extractedPalette: PaletteColor[];
 }
 
@@ -47,7 +46,6 @@ export function Sidebar({
     copied,
     onCopySvg,
     onDownloadSvg,
-    onDownloadPng,
     extractedPalette,
 }: SidebarProps) {
     const {
@@ -475,31 +473,23 @@ export function Sidebar({
                         {t('sidebar.downloadSvg')}
                     </button>
                     <button
-                        onClick={onDownloadPng}
+                        onClick={onCopySvg}
                         disabled={!svgContent}
                         className="bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer border border-slate-200 shadow-sm"
                     >
-                        {t('sidebar.downloadPng')}
+                        {copied ? (
+                            <>
+                                <Check className="w-4 h-4 text-emerald-600 animate-bounce" />
+                                {t('sidebar.copied')}
+                            </>
+                        ) : (
+                            <>
+                                <Copy className="w-4 h-4" />
+                                {t('sidebar.copySvg')}
+                            </>
+                        )}
                     </button>
                 </div>
-
-                <button
-                    onClick={onCopySvg}
-                    disabled={!svgContent}
-                    className="w-full bg-slate-50 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-200 cursor-pointer active:scale-[0.99] transition-all shadow-sm"
-                >
-                    {copied ? (
-                        <>
-                            <Check className="w-4 h-4 text-emerald-600 animate-bounce" />
-                            {t('sidebar.copied')}
-                        </>
-                    ) : (
-                        <>
-                            <Copy className="w-4 h-4" />
-                            {t('sidebar.copySvg')}
-                        </>
-                    )}
-                </button>
             </div>
         </div>
     );

@@ -63,38 +63,6 @@ export default function App() {
         URL.revokeObjectURL(url);
     }, [pipeline.svgContent, image.sourceBaseName]);
 
-    const handleDownloadPng = useCallback(() => {
-        if (!pipeline.svgContent) return;
-
-        const svgBlob = new Blob([pipeline.svgContent], { type: 'image/svg+xml;charset=utf-8' });
-        const blobURL = URL.createObjectURL(svgBlob);
-
-        const img = new Image();
-        img.onload = () => {
-            const scale = 2.0;
-            const canvas = document.createElement('canvas');
-            canvas.width = image.imageWidth * scale;
-            canvas.height = image.imageHeight * scale;
-            const ctx = canvas.getContext('2d');
-
-            if (ctx) {
-                ctx.fillStyle = settings.useTransparentBg ? 'rgba(0,0,0,0)' : settings.backgroundColor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                const pngURL = canvas.toDataURL('image/png');
-                const downloadLink = document.createElement('a');
-                downloadLink.href = pngURL;
-                downloadLink.download = buildExportFileName(image.sourceBaseName, 'vectorized-2x', 'png');
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            }
-            URL.revokeObjectURL(blobURL);
-        };
-        img.src = blobURL;
-    }, [pipeline.svgContent, image.imageWidth, image.imageHeight, image.sourceBaseName, settings.useTransparentBg, settings.backgroundColor]);
-
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-black selection:text-white" id="vectorizer-root">
             <GlobalDropOverlay visible={image.isPageDragging} />
@@ -114,7 +82,6 @@ export default function App() {
                     copied={copied}
                     onCopySvg={handleCopySvg}
                     onDownloadSvg={handleDownloadSvg}
-                    onDownloadPng={handleDownloadPng}
                     extractedPalette={settings.extractedPalette}
                 />
 
