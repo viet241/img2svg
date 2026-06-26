@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { quantizeImage } from '../src/utils/quantize';
 import { traceColorLayers } from '../src/utils/layerTrace';
+import { buildCanvasRectPath } from '../src/utils/multiLayerFinalize';
 
 function twoColorImageData(w: number, h: number): ImageData {
     const data = new Uint8ClampedArray(w * h * 4);
@@ -69,5 +70,43 @@ describe('traceColorLayers', () => {
             isFillMode: false,
         });
         expect(layers.length).toBeGreaterThan(0);
+    });
+
+    it('prepends canvas rect to dominant fill layer and paints background first', () => {
+        const quantize = quantizeImage(twoColorBlobImageData(24, 24), 2);
+        const layers = traceColorLayers(quantize, 24, 24, {
+            rdpEpsilon: 0.5,
+            useBezier: false,
+            noiseFilter: 2,
+            isFillMode: true,
+        });
+
+        expect(layers.length).toBe(2);
+
+        const counts = quantize.palette.map((_, colorIndex) =>
+            quantize.indices.filter((index) => index === colorIndex).length
+        );
+        const dominantIndex = counts.indexOf(Math.max(...counts));
+        const dominantColor = quantize.palette[dominantIndex].hex.toLowerCase();
+        const canvasRect = buildCanvasRectPath(24, 24);
+
+        expect(layers[0].color.toLowerCase()).toBe(dominantColor);
+        expect(layers[0].paths[0]).toBe(canvasRect);
+        expect(layers[1].paths[0]).not.toBe(canvasRect);
+    });
+
+    it('does not prepend canvas rect in stroke mode', () => {
+        const quantize = quantizeImage(twoColorBlobImageData(24, 24), 2);
+        const layers = traceColorLayers(quantize, 24, 24, {
+            rdpEpsilon: 0.5,
+            useBezier: false,
+            noiseFilter: 2,
+            isFillMode: false,
+        });
+
+        const canvasRect = buildCanvasRectPath(24, 24);
+        for (const layer of layers) {
+            expect(layer.paths[0]).not.toBe(canvasRect);
+        }
     });
 });

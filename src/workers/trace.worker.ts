@@ -1,5 +1,5 @@
 import { traceContours, linkSegments } from '../utils/vectorizer';
-import { processLoops } from '../utils/loopPipeline';
+import { tracePaletteLayers } from '../utils/multiLayerFinalize';
 import type { VectorLayer } from '../types/vectorizer';
 
 export interface BwTraceRequest {
@@ -44,32 +44,18 @@ export interface MultiTraceResponse {
 export type TraceResponse = BwTraceResponse | MultiTraceResponse;
 
 function traceMultiLayers(req: MultiTraceRequest): MultiTraceResponse {
-    const { indices, palette, width, height, rdpEpsilon, useBezier, noiseFilter, isFillMode } = req;
-    const layers: VectorLayer[] = [];
-    let rawSegmentsCount = 0;
-
-    for (let c = 0; c < palette.length; c++) {
-        const mask = new Uint8Array(width * height);
-        for (let i = 0; i < indices.length; i++) {
-            mask[i] = indices[i] === c ? 0 : 255;
-        }
-
-        const segments = traceContours(mask, width, height, 128, false);
-        rawSegmentsCount += segments.length;
-        const loops = linkSegments(segments);
-        const { paths, totalPoints } = processLoops(loops, {
-            noiseFilter,
-            rdpEpsilon,
-            useBezier,
-            isFillMode,
-            imageWidth: width,
-            imageHeight: height,
-        });
-
-        if (paths.length > 0) {
-            layers.push({ color: palette[c].hex, paths, pointCount: totalPoints });
-        }
-    }
+    const { layers, rawSegmentsCount } = tracePaletteLayers(
+        req.indices,
+        req.palette,
+        req.width,
+        req.height,
+        {
+            rdpEpsilon: req.rdpEpsilon,
+            useBezier: req.useBezier,
+            noiseFilter: req.noiseFilter,
+            isFillMode: req.isFillMode,
+        },
+    );
 
     return { id: req.id, mode: 'multi', layers, rawSegmentsCount };
 }
